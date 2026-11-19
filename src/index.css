@@ -28,7 +28,7 @@
   --muted: #57524a;
   --quiet: #6b655a;
   --green: #326b16;
-  --accent-text: color-mix(in srgb, var(--accent) 45%, #2a1600);
+  --accent-text: color-mix(in srgb, var(--accent) 35%, #2a1600);
   --accent-soft: color-mix(in srgb, var(--accent) 18%, var(--panel));
 }
 * {
@@ -187,11 +187,16 @@ small {
   border-radius: 50%;
   padding: 4px;
 }
+.brand > span:last-child {
+  min-width: 0;
+}
 .brand strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-family: var(--display);
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   font-weight: 400;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.045em;
   line-height: 1;
   text-transform: uppercase;
   display: block;
