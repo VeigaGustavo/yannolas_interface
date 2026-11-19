@@ -1,0 +1,27 @@
+services:
+  frontend:
+    image: node:24-alpine
+    working_dir: /workspace
+    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "127.0.0.1:5173:5173"
+    volumes:
+      - .:/workspace
+      - frontend_dependencies:/workspace/node_modules
+
+  postgres:
+    image: postgres:17-alpine
+    profiles: [database]
+    environment:
+      POSTGRES_DB: tattoo_studio
+      POSTGRES_USER: studio
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-studio_local_dev}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docs/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+
+volumes:
+  frontend_dependencies:
+  postgres_data:
