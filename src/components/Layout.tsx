@@ -2,7 +2,6 @@ import { Modal } from "./Modal";
 import { useStudio } from "../hooks/useStudio";
 import { dateOffset } from "../mocks/studio";
 import {
-  Activity,
   Bell,
   CalendarDays,
   ChartNoAxesColumnIncreasing,
@@ -60,7 +59,7 @@ export function Layout() {
         (f) => f.status !== "Concluído" && f.followUp <= dateOffset(),
       ).length
     : 0;
-  const artist = data?.settings.artist || "Yann Nolas";
+  const artist = data?.settings.artist || "Yannis Manolas";
   const initials = artist
     .split(" ")
     .slice(0, 2)
@@ -108,13 +107,14 @@ export function Layout() {
       <aside id="sidebar" className={menu ? "sidebar open" : "sidebar"}>
         <NavLink to="/" className="brand" onClick={() => setMenu(false)}>
           <span className="logo">
-            <Activity size={23} />
+            <img
+              src={import.meta.env.BASE_URL + "brand/yannis-marca.png"}
+              alt="Yannis Tattoo"
+            />
           </span>
           <span>
-            <strong>
-              Tattoo Studio<span className="brand-ai"> AI</span>
-            </strong>
-            <small>GESTÃO DE ESTÚDIO</small>
+            <strong>Yannis | Tattoo</strong>
+            <small>PAINEL DO ESTÚDIO</small>
           </span>
         </NavLink>
         <nav aria-label="Principal">
@@ -157,7 +157,7 @@ export function Layout() {
             <span className="avatar lime">{initials}</span>
             <span>
               <strong>{artist}</strong>
-              <small>{data?.settings.studio || "Inkline Studio"}</small>
+              <small>{data?.settings.studio || "Yannis Tattoo"}</small>
             </span>
             <ChevronDown size={15} />
           </button>

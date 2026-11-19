@@ -14,6 +14,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { App } from "../App";
 import { dateOffset } from "../mocks/studio";
 import { studio } from "../services/studio";
+import { useInterface } from "../stores/interface";
 import type { Session } from "../types/studio";
 
 beforeEach(() => {
@@ -221,11 +222,35 @@ describe("protótipo do estúdio", () => {
     });
   }, 10000);
 
-  it("recupera a tela após um erro de leitura", async () => {
+  it("mostra a marca Yannis Tattoo na navegação", async () => {
+    open();
+    expect(
+      await screen.findByRole("img", { name: "Yannis Tattoo" }),
+    ).toBeTruthy();
+    expect(await screen.findByText("Yannis Manolas")).toBeTruthy();
+  });
+
+  it("restaura o laranja como cor de destaque", async () => {
+    useInterface.getState().setAccent("#123456");
+    const user = open("/configuracoes");
+    await user.click(await screen.findByRole("button", { name: "Aparência" }));
+    await user.click(
+      screen.getByRole("button", { name: "Restaurar cor padrão" }),
+    );
+    expect(useInterface.getState().accent).toBe("#ff9100");
+  });
+
+  it("ignora dados salvos pela versão anterior do protótipo", async () => {
     localStorage.setItem("tattoo-studio-data-v1", "{");
+    open();
+    await screen.findByRole("heading", { name: /Olá, Yannis/ });
+  });
+
+  it("recupera a tela após um erro de leitura", async () => {
+    localStorage.setItem("tattoo-studio-data-v2", "{");
     const user = open();
     await screen.findByRole("alert");
-    localStorage.removeItem("tattoo-studio-data-v1");
+    localStorage.removeItem("tattoo-studio-data-v2");
     await user.click(screen.getByRole("button", { name: "Tentar novamente" }));
     await screen.findByRole("heading", { name: /Olá, Yann/ });
   });

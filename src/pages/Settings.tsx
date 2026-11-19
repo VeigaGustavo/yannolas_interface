@@ -181,7 +181,7 @@ function SettingsView({ data }: { data: StudioData }) {
             />
           </label>
           <div>
-            <Button onClick={() => setAccent("#bdff49")}>
+            <Button onClick={() => setAccent("#ff9100")}>
               Restaurar cor padrão
             </Button>
           </div>

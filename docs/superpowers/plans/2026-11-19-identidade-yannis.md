@@ -33,11 +33,13 @@
 ### Task 1: Tokens de cor, tipografia e favicon
 
 **Arquivos:**
+
 - Modificar: `index.html` (title, links de fonte, favicon)
 - Modificar: `src/index.css` (tokens em `:root` e no tema claro, `font-family`, `h1`, `.brand*`, `.logo`)
 - Criar: `public/brand/yannis-selo.png` (selo laranja, 64 px) e `public/brand/yannis-marca.png` (busto, 160 px)
 
 **Interfaces:**
+
 - Produz: as classes `.logo` (contêiner da imagem, 40 px, sem fundo de cor) e `.brand strong` (wordmark), usadas na Tarefa 2.
 
 - [ ] **Passo 1:** Gerar os assets com `sips`, a partir de `scratchpad/brand-dl/163ea16626de4a8fb49ca4e3a77f19da.png` (selo, `-Z 64`) e `66e263d37efa44c8afd4c6fe904194f6.png` (busto, `-Z 160`). Conferir com `sips -g pixelWidth`: 64 e 160.
@@ -58,12 +60,14 @@
   - `font-weight: 400`.
 
   Trocar `.logo` para um contêiner de imagem sem fundo de destaque. Trocar a cor do texto sobre o destaque (os `#12180b` e `#151a0e`) por `#0b0b0b`.
+
 - [ ] **Passo 6:** Rodar `npm run build` (esperado: sem erro). No navegador, medir em `/` e `/configuracoes` o contraste de `--accent-text` sobre `--panel` nos dois temas (esperado: ≥ 4,5).
 - [ ] **Passo 7:** Commit com `feat: cores, tipografia e favicon da marca Yannis Tattoo`.
 
 ### Task 2: Logo na sidebar, nomes, padrão da cor e dados fictícios
 
 **Arquivos:**
+
 - Modificar: `src/components/Layout.tsx:108-118` (brand) e `:63`, `:160` (fallbacks de nome)
 - Modificar: `src/stores/interface.ts` (padrão `accent: "#ff9100"` e `name: "tattoo-studio-ui-v2"`)
 - Modificar: `src/pages/Settings.tsx:184` (restaurar para `#ff9100`)
@@ -73,6 +77,7 @@
 - Teste: `src/tests/flows.test.tsx`
 
 **Interfaces:**
+
 - Consome: `.logo` e `.brand strong` da Tarefa 1, e `/brand/yannis-marca.png`.
 
 - [ ] **Passo 1: Escrever os testes que devem falhar**
@@ -80,7 +85,9 @@
 ```tsx
 it("mostra a marca Yannis Tattoo na navegação", async () => {
   // renderizar o app como os testes existentes fazem
-  expect(await screen.findByRole("img", { name: "Yannis Tattoo" })).toBeInTheDocument();
+  expect(
+    await screen.findByRole("img", { name: "Yannis Tattoo" }),
+  ).toBeInTheDocument();
   expect(screen.getByText("Yannis Manolas")).toBeInTheDocument();
 });
 it("restaura o laranja como cor de destaque", async () => {
@@ -105,6 +112,7 @@ it("restaura o laranja como cor de destaque", async () => {
   - trocar `"Briefing de fine line gerado para Mariana Costa."` só se o projeto dela mudar de nome.
 
   Depois, buscar `blackwork` e `flash` em `src/` e ajustar os textos e testes que dependam deles.
+
 - [ ] **Passo 6:** No `README.md`, trocar o nome do projeto para Yannis Tattoo e as chaves citadas para `tattoo-studio-data-v2` e `tattoo-studio-ui-v2`.
 - [ ] **Passo 7:** Rodar `npm run test` (esperado: todos passam, inclusive os 2 novos), `npm run lint` e `npm exec prettier -- --check .`.
 - [ ] **Passo 8:** Commit com `feat: logo, nomes e dados fictícios do Yannis Tattoo`.
@@ -123,6 +131,7 @@ it("restaura o laranja como cor de destaque", async () => {
 O site vai ser servido em `https://<usuário>.github.io/<repo>/`, sem reescrita de rotas no servidor.
 
 **Arquivos:**
+
 - Modificar: `vite.config.ts` (`base: "./"`)
 - Modificar: `src/main.tsx` (`BrowserRouter` → `HashRouter`)
 - Modificar: `src/mocks/studio.ts:79` (referência com `import.meta.env.BASE_URL + "referencia-botanica.svg"`)
@@ -130,6 +139,7 @@ O site vai ser servido em `https://<usuário>.github.io/<repo>/`, sem reescrita 
 - Modificar: `README.md` (seção "Publicar no GitHub Pages") e `.gitignore` (`.playwright-mcp/`)
 
 **Decisões:**
+
 - **Rotas com hash.** O `HashRouter` deixa as URLs como `/#/crm`. Ele funciona em qualquer nome de repositório e ao recarregar a página, sem o truque de `404.html`.
 - **`base: "./"`.** Os assets ficam relativos, então o build não depende do nome do repositório.
 

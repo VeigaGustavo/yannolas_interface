@@ -1,6 +1,6 @@
-# Tattoo Studio AI
+# Yannis Tattoo — Painel do estúdio
 
-Protótipo navegável para operar um estúdio de tatuagem. Inclui Dashboard, CRM, Atendimento, Agente de IA, Orçamentos, Agenda, Campanhas, Pós-atendimento e Configurações.
+Protótipo navegável para operar o estúdio Yannis Tattoo, em Palmas-TO. Inclui Dashboard, CRM, Atendimento, Agente de IA, Orçamentos, Agenda, Campanhas, Pós-atendimento e Configurações.
 
 ## Executar
 
@@ -11,7 +11,7 @@ npm ci
 npm run dev
 ```
 
-Abra `http://localhost:5173`. O frontend usa dados fictícios gravados no armazenamento local do navegador. Para voltar à base inicial, remova as chaves `tattoo-studio-data-v1` e `tattoo-studio-ui` nos dados do site.
+Abra `http://localhost:5173`. O frontend usa dados fictícios gravados no armazenamento local do navegador. Para voltar à base inicial, remova as chaves `tattoo-studio-data-v2` e `tattoo-studio-ui-v2` nos dados do site.
 
 ### Docker Compose
 
@@ -26,7 +26,7 @@ O primeiro comando sobe o frontend em `http://localhost:5173`. O segundo inicia 
 
 1. Crie um lead pelo Dashboard. Mova sua oportunidade no Kanban por arraste ou pelo seletor de etapa.
 2. Abra o perfil e inicie uma conversa. Em uma conversa no modo IA, simule uma mensagem recebida para ver a referência e a resposta automática.
-3. Abra o Agente de IA, escolha um cliente e use a referência botânica ou carregue outra imagem. Revise o briefing antes de aprovar a atualização no CRM. O briefing usa atributos fictícios fixos.
+3. Abra o Agente de IA, escolha um cliente e use a referência floral ou carregue outra imagem. Revise o briefing antes de aprovar a atualização no CRM. O briefing usa atributos fictícios fixos.
 4. Crie um orçamento, marque como aprovado e converta a proposta em uma sessão. A agenda valida sobreposições e permite reagendamento e cancelamento.
 5. Pré-visualize uma campanha e simule o disparo. Em Pós-atendimento, registre a resposta a uma pesquisa e defina a data de retorno.
 6. Altere o tema, a cor de destaque ou as preferências de lembretes nas Configurações.

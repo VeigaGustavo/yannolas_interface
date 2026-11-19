@@ -14,7 +14,7 @@ export const useInterface = create<InterfaceState>()(
   persist(
     (set) => ({
       theme: "dark",
-      accent: "#bdff49",
+      accent: "#ff9100",
       menu: false,
       notice: "",
       setTheme: (theme) => set({ theme }),
@@ -23,7 +23,7 @@ export const useInterface = create<InterfaceState>()(
       notify: (notice) => set({ notice }),
     }),
     {
-      name: "tattoo-studio-ui",
+      name: "tattoo-studio-ui-v2",
       partialize: ({ theme, accent }) => ({ theme, accent }),
     },
   ),

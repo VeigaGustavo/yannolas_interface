@@ -9,7 +9,7 @@ import type {
   StudioData,
   StudioService,
 } from "../types/studio";
-const key = "tattoo-studio-data-v1";
+const key = "tattoo-studio-data-v2";
 const delay = (ms = 180) => new Promise((resolve) => setTimeout(resolve, ms));
 export const id = () => crypto.randomUUID();
 function load(): StudioData {

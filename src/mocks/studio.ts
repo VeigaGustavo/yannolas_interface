@@ -40,12 +40,12 @@ const names = [
   "Diego Souza",
 ];
 const projects = [
-  "Botânica em fine line",
-  "Fechamento de braço",
-  "Borboleta minimalista",
-  "Tigre em blackwork",
-  "Rosa ornamental",
-  "Flash tradicional",
+  "Floral em fine line",
+  "Pontilhismo geométrico",
+  "Borboleta delicada",
+  "Realismo preto e cinza",
+  "Cobertura floral",
+  "Mandala em pontilhismo",
 ];
 const times = ["10:00", "13:30", "16:00"];
 export function seed(): StudioData {
@@ -73,7 +73,7 @@ export function seed(): StudioData {
     phone: "(11) 99824-" + (1280 + i),
     email: "cliente" + (i + 1) + "@example.com",
     stage: stages[i % 6],
-    tags: ["fine line", "blackwork", "flash", "retorno"][i % 4],
+    tags: ["fine line", "pontilhismo", "floral", "retorno"][i % 4],
     project: projects[i % 6],
     created: dateOffset(-Math.floor(i / 4)),
     references: i === 0 ? ["/referencia-botanica.svg"] : [],
@@ -174,10 +174,11 @@ export function seed(): StudioData {
     campaigns: [
       {
         id: "p1",
-        name: "Flash Day de novembro",
+        name: "Flash Day floral de novembro",
         type: "Flash tattoo",
-        segment: "flash",
-        message: "Oi, {nome}! Abrimos novos horários para o nosso Flash Day.",
+        segment: "floral",
+        message:
+          "Oi, {nome}! Abrimos horários para o Flash Day floral do Yannis.",
         date: dateOffset(7),
         status: "Agendada",
         sent: 0,
@@ -192,15 +193,15 @@ export function seed(): StudioData {
       status: i === 4 ? "Pendente" : "Recebido",
     })),
     settings: {
-      studio: "Inkline Studio",
-      artist: "Yann Nolas",
+      studio: "Yannis Tattoo",
+      artist: "Yannis Manolas",
       hours: "Atendimento diário com horário marcado",
       opensAt: "10:00",
       closesAt: "19:00",
       policies: "Sinal de R$ 150. Reagendamentos com 48 horas de antecedência.",
       tone: "Próximo, profissional e direto",
       knowledge:
-        "Estilos do estúdio: fine line, blackwork e flash tradicional.",
+        "Estilos do estúdio: traços finos, pontilhismo, floral e realismo em preto e cinza. Estúdio em Palmas-TO.",
       rules: "Confirme o tamanho e a região antes de encaminhar um orçamento.",
       tools: "Resumo de conversa, análise de referência, atualização de CRM",
       notifications: true,

@@ -191,9 +191,6 @@ small {
   text-transform: uppercase;
   display: block;
 }
-.brand-ai {
-  color: var(--accent-text);
-}
 .brand small {
   display: block;
   letter-spacing: 0.115em;
