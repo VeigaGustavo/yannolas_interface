@@ -635,16 +635,6 @@ tr:last-child td {
 }
 @media (max-width: 1000px) {
   .layout {
-    grid-template-columns: 200px minmax(0, 1fr);
-  }
-  .page,
-  .topbar {
-    padding-left: 19px;
-    padding-right: 19px;
-  }
-}
-@media (max-width: 760px) {
-  .layout {
     display: block;
   }
   .sidebar {
@@ -658,6 +648,9 @@ tr:last-child td {
   .sidebar.open {
     transform: none;
   }
+  .sidebar:not(.open) {
+    visibility: hidden;
+  }
   .scrim {
     display: block;
     position: fixed;
@@ -668,6 +661,13 @@ tr:last-child td {
   .mobile-menu {
     display: inline-flex;
   }
+  .page,
+  .topbar {
+    padding-left: 19px;
+    padding-right: 19px;
+  }
+}
+@media (max-width: 760px) {
   .breadcrumb > svg,
   .breadcrumb > span {
     display: none;
@@ -1149,7 +1149,6 @@ tr:last-child td {
 }
 .calendar-grid {
   display: grid;
-  min-width: 570px;
   border: 1px solid var(--line);
   border-radius: 8px;
   overflow: hidden;
@@ -1218,7 +1217,28 @@ tr:last-child td {
   color: #e1aa58;
 }
 .calendar-title {
-  text-transform: capitalize;
+  font-size: 1.05rem;
+}
+@media (max-width: 600px) {
+  .calendar-cell {
+    min-height: 64px;
+    padding: 2px;
+  }
+  .calendar-event {
+    font-size: 0.64rem;
+    padding: 2px;
+    text-overflow: clip;
+  }
+  .calendar-event .event-title {
+    display: none;
+  }
+  .daily .calendar-event .event-title {
+    display: inline;
+  }
+  .weekday {
+    padding: 6px 0;
+    font-size: 0.7rem;
+  }
 }
 .daily .calendar-event {
   width: max-content;
@@ -1241,11 +1261,6 @@ tr:last-child td {
 .setting-card p,
 .card > .muted {
   font-size: 0.88rem;
-}
-@media (max-width: 760px) {
-  .sidebar:not(.open) {
-    visibility: hidden;
-  }
 }
 @media (max-width: 420px) {
   .chart .secondary-date {

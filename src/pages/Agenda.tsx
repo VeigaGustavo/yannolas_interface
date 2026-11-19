@@ -29,6 +29,7 @@ import { date, number, required, time } from "../schemas/forms";
 import { id, studio } from "../services/studio";
 import type { Session, StudioData } from "../types/studio";
 const views = ["Mês", "Semana", "Dia"];
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 const schema = z
   .object({
     title: required,
@@ -222,11 +223,13 @@ function AgendaView({ data }: { data: StudioData }) {
             </Button>
             <Button onClick={() => setDay(parseDay(dateOffset()))}>Hoje</Button>
             <h2 className="calendar-title">
-              {day.toLocaleDateString(
-                "pt-BR",
-                view === "Dia"
-                  ? { dateStyle: "long" }
-                  : { month: "long", year: "numeric" },
+              {capitalize(
+                day.toLocaleDateString(
+                  "pt-BR",
+                  view === "Dia"
+                    ? { dateStyle: "long" }
+                    : { month: "long", year: "numeric" },
+                ),
               )}
             </h2>
           </div>
@@ -294,7 +297,8 @@ function AgendaView({ data }: { data: StudioData }) {
                       title={s.time + " · " + s.title}
                       onClick={() => open(s.id)}
                     >
-                      {s.time} · {s.title}
+                      <span>{s.time}</span>
+                      <span className="event-title"> · {s.title}</span>
                     </button>
                   ))}
                 </div>
