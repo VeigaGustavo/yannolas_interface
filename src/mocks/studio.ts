@@ -39,6 +39,8 @@ const names = [
   "Juliana Martins",
   "Diego Souza",
 ];
+export const sampleReference =
+  import.meta.env.BASE_URL + "referencia-botanica.svg";
 const projects = [
   "Floral em fine line",
   "Pontilhismo geométrico",
@@ -76,7 +78,7 @@ export function seed(): StudioData {
     tags: ["fine line", "pontilhismo", "floral", "retorno"][i % 4],
     project: projects[i % 6],
     created: dateOffset(-Math.floor(i / 4)),
-    references: i === 0 ? ["/referencia-botanica.svg"] : [],
+    references: i === 0 ? [sampleReference] : [],
     history: ["Contato cadastrado pelo WhatsApp"],
   }));
   const quotes = Array.from({ length: 19 }, (_, i) => ({

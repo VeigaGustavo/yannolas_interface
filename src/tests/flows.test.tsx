@@ -12,7 +12,7 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { App } from "../App";
-import { dateOffset } from "../mocks/studio";
+import { dateOffset, sampleReference } from "../mocks/studio";
 import { studio } from "../services/studio";
 import { useInterface } from "../stores/interface";
 import type { Session } from "../types/studio";
@@ -77,7 +77,7 @@ describe("protótipo do estúdio", () => {
       { exact: true },
     );
     expect((await studio.get()).clients[0].references).toContain(
-      "/referencia-botanica.svg",
+      sampleReference,
     );
   });
 

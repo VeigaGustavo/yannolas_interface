@@ -22,6 +22,14 @@ docker compose --profile database up postgres
 
 O primeiro comando sobe o frontend em `http://localhost:5173`. O segundo inicia o PostgreSQL opcional em `localhost:5432` e aplica o esquema no primeiro uso do volume.
 
+## Publicar no GitHub Pages
+
+O build é estático e funciona em qualquer subcaminho. As rotas usam hash, por exemplo `/#/agenda`, para que recarregar a página não gere 404.
+
+1. Crie o repositório no GitHub e envie a branch `main`.
+2. Em **Settings → Pages → Build and deployment**, escolha **GitHub Actions** como fonte.
+3. A cada push na `main`, o workflow `.github/workflows/deploy.yml` roda lint, testes e build e publica em `https://<usuário>.github.io/<repositório>/`.
+
 ## Roteiro de demonstração
 
 1. Crie um lead pelo Dashboard. Mova sua oportunidade no Kanban por arraste ou pelo seletor de etapa.

@@ -6,7 +6,7 @@ import { fileAccept, fileData } from "../components/Editor";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { useAction } from "../hooks/useStudio";
-import { initials } from "../mocks/studio";
+import { initials, sampleReference } from "../mocks/studio";
 import { id, studio } from "../services/studio";
 import type {
   Client,
@@ -200,7 +200,7 @@ function Thread({
                       messageId: id(),
                       at: new Date().toISOString(),
                       text: "Posso enviar uma referência e saber os horários disponíveis?",
-                      image: "/referencia-botanica.svg",
+                      image: sampleReference,
                     }),
                   message: "Evento simulado da Evolution API registrado.",
                 })

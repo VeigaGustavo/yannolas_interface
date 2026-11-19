@@ -10,6 +10,7 @@ import { AgentSettings } from "../features/AgentSettings";
 import { useAction } from "../hooks/useStudio";
 import { id, studio } from "../services/studio";
 import type { StudioData } from "../types/studio";
+import { sampleReference } from "../mocks/studio";
 const briefing =
   "Tema de exemplo: ramo botânico. Técnica: fine line em preto. Composição: vertical e delicada. Tamanho sugerido: 10–14 cm. Região sugerida: antebraço. Confirmar medidas e posição com o cliente.";
 function AgentView({ data }: { data: StudioData }) {
@@ -98,7 +99,7 @@ function AgentView({ data }: { data: StudioData }) {
                 onClick={() =>
                   setImage(
                     data.clients.find((c) => c.id === client)?.references[0] ||
-                      "/referencia-botanica.svg",
+                      sampleReference,
                   )
                 }
               >
