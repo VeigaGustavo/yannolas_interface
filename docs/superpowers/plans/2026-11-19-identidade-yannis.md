@@ -30,7 +30,7 @@
 
 ---
 
-### Tarefa 1: Tokens de cor, tipografia e favicon
+### Task 1: Tokens de cor, tipografia e favicon
 
 **Arquivos:**
 - Modificar: `index.html` (title, links de fonte, favicon)
@@ -61,7 +61,7 @@
 - [ ] **Passo 6:** Rodar `npm run build` (esperado: sem erro). No navegador, medir em `/` e `/configuracoes` o contraste de `--accent-text` sobre `--panel` nos dois temas (esperado: ≥ 4,5).
 - [ ] **Passo 7:** Commit com `feat: cores, tipografia e favicon da marca Yannis Tattoo`.
 
-### Tarefa 2: Logo na sidebar, nomes, padrão da cor e dados fictícios
+### Task 2: Logo na sidebar, nomes, padrão da cor e dados fictícios
 
 **Arquivos:**
 - Modificar: `src/components/Layout.tsx:108-118` (brand) e `:63`, `:160` (fallbacks de nome)
@@ -109,7 +109,7 @@ it("restaura o laranja como cor de destaque", async () => {
 - [ ] **Passo 7:** Rodar `npm run test` (esperado: todos passam, inclusive os 2 novos), `npm run lint` e `npm exec prettier -- --check .`.
 - [ ] **Passo 8:** Commit com `feat: logo, nomes e dados fictícios do Yannis Tattoo`.
 
-### Tarefa 3: Verificação visual
+### Task 3: Verificação visual
 
 **Arquivos:** nenhum, a não ser os ajustes que a verificação pedir.
 
@@ -118,7 +118,7 @@ it("restaura o laranja como cor de destaque", async () => {
 - [ ] **Passo 3:** Conferir no console do navegador que não há mais o 404 do favicon.
 - [ ] **Passo 4:** Commitar os ajustes, se houver, com `fix: ajustes visuais da identidade Yannis Tattoo`.
 
-### Tarefa 4: Publicação no GitHub Pages
+### Task 4: Publicação no GitHub Pages
 
 O site vai ser servido em `https://<usuário>.github.io/<repo>/`, sem reescrita de rotas no servidor.
 
