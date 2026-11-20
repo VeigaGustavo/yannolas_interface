@@ -71,15 +71,15 @@ Por isso, a interface já nasce pensada para celular e telas pequenas.
 
 Cada estúdio tem uma configuração de marca:
 
-| Campo | Yannis Tattoo | Biomedicina |
-| --- | --- | --- |
-| Nome | Yannis Tattoo | nome fictício a definir |
-| Profissional | Yannis Manolas | nome fictício |
-| Logo / favicon | atuais (`public/brand/`) | marca textual simples, sem imagem |
-| Destaque | laranja `#FF9100`, fundo preto | paleta própria e clara, a definir por quem implementar, com contraste AA |
-| Atendimento (termo) | Sessão | Procedimento |
-| Serviço (termo) | Tatuagem | Procedimento estético |
-| Campos do orçamento | local do corpo, tamanho, estilo, referência | região tratada, produto, quantidade (ml/U), referência |
+| Campo               | Yannis Tattoo                               | Biomedicina                                                              |
+| ------------------- | ------------------------------------------- | ------------------------------------------------------------------------ |
+| Nome                | Yannis Tattoo                               | nome fictício a definir                                                  |
+| Profissional        | Yannis Manolas                              | nome fictício                                                            |
+| Logo / favicon      | atuais (`public/brand/`)                    | marca textual simples, sem imagem                                        |
+| Destaque            | laranja `#FF9100`, fundo preto              | paleta própria e clara, a definir por quem implementar, com contraste AA |
+| Atendimento (termo) | Sessão                                      | Procedimento                                                             |
+| Serviço (termo)     | Tatuagem                                    | Procedimento estético                                                    |
+| Campos do orçamento | local do corpo, tamanho, estilo, referência | região tratada, produto, quantidade (ml/U), referência                   |
 
 O vocabulário vem de um dicionário por estúdio (`terms.atendimento`, `terms.servico` etc.), usado pelas telas, e não de condicionais espalhadas. Os campos específicos do orçamento ficam declarados por estúdio, aproveitando `src/features/studioFields.ts`.
 
@@ -89,7 +89,7 @@ O vocabulário vem de um dicionário por estúdio (`terms.atendimento`, `terms.s
 - O login correto grava uma sessão (`estudioId`) no navegador e aplica a marca daquele estúdio. Sair limpa a sessão e volta para o login.
 - Todas as rotas exigem sessão. Sem ela, o app redireciona para o login.
 - Todo acesso a dados passa pelo `estudioId` da sessão, e o serviço só lê e grava na chave daquele estúdio.
-- A sessão fica em uma chave própria, fora dos dados dos estúdios. Todas as query keys do TanStack Query incluem o `estudioId`, e o cache é limpo ao sair. *(decisão minha)*
+- A sessão fica em uma chave própria, fora dos dados dos estúdios. Todas as query keys do TanStack Query incluem o `estudioId`, e o cache é limpo ao sair. _(decisão minha)_
 - Clientes, indicações, cupons, sorteios, lançamentos e estoque **nunca cruzam estúdios**. Um cliente que vá aos dois é cadastrado duas vezes. Por isso não há `estudioId` dentro das entidades no protótipo, só um store por estúdio.
 - Um aviso discreto na tela de login: "Protótipo: os dados ficam neste navegador e o login não é seguro."
 
@@ -108,7 +108,7 @@ O vocabulário vem de um dicionário por estúdio (`terms.atendimento`, `terms.s
 - **Dados:** contato e aniversário (campo novo).
 - **Histórico:** atendimentos, orçamentos e passagens de etapa do follow-up, com data.
 - **Financeiro:** cada pagamento com data, valor cheio, desconto e motivo, valor final, forma de pagamento (Pix, dinheiro, débito, crédito) e parcelas.
-- **Fidelidade:** quem indicou, quem ele indicou (com o status de cada um), benefícios disponíveis, pendentes e usados (indicação, cupons, sorteios, promoções). Não existe saldo em reais, só benefícios em %. *(decisão minha)*
+- **Fidelidade:** quem indicou, quem ele indicou (com o status de cada um), benefícios disponíveis, pendentes e usados (indicação, cupons, sorteios, promoções). Não existe saldo em reais, só benefícios em %. _(decisão minha)_
 
 **Agenda.** Mantém o que já existe: validação de sobreposição, reagendar e cancelar. No celular, a visão padrão é o dia ou uma lista da semana. Concluir um atendimento oferece **"Registrar pagamento"**, que abre o lançamento já preenchido com o cliente e o valor do orçamento.
 
@@ -121,7 +121,7 @@ A fazer → Contatado → Respondeu → Convertido
                    ↘ Sem resposta → (reagenda em X dias, volta para A fazer) → Perdido
 ```
 
-- **Tentativas:** um follow-up sem resposta volta para "A fazer" depois de X dias (padrão 3, configurável). Na 3ª vez sem resposta, ele vira Perdido. Cada follow-up guarda o número de tentativas. *(decisão minha)*
+- **Tentativas:** um follow-up sem resposta volta para "A fazer" depois de X dias (padrão 3, configurável). Na 3ª vez sem resposta, ele vira Perdido. Cada follow-up guarda o número de tentativas. _(decisão minha)_
 
 - **Eventos que criam um follow-up automaticamente.** Os prazos são configuráveis por estúdio, e entre parênteses estão os valores padrão:
   - orçamento enviado sem resposta (3 dias);
@@ -143,7 +143,7 @@ A fazer → Contatado → Respondeu → Convertido
 - **Lançamentos de entrada:** cliente, atendimento ou orçamento opcional, data, valor cheio, desconto aplicado (benefício da fidelidade ou desconto manual, com motivo), valor final, forma de pagamento e número de parcelas.
 - **Crédito parcelado:** gera as parcelas mês a mês. Cada parcela tem data prevista e status (prevista ou recebida). Por padrão, a parcela é marcada como recebida automaticamente quando chega a data prevista, com opção de marcar na mão.
 - **Despesas:** data, categoria (material, aluguel, marketing, outros), descrição e valor. A compra registrada no estoque gera a despesa automaticamente.
-- **Regime de caixa:** um mês conta o que efetivamente entrou nele, ou seja, os pagamentos à vista e as parcelas recebidas naquele mês. O status "recebida" de uma parcela é calculado ao abrir o app a partir da data, e não salvo, exceto quando marcado na mão. *(decisão minha)*
+- **Regime de caixa:** um mês conta o que efetivamente entrou nele, ou seja, os pagamentos à vista e as parcelas recebidas naquele mês. O status "recebida" de uma parcela é calculado ao abrir o app a partir da data, e não salvo, exceto quando marcado na mão. _(decisão minha)_
 - **Resumo por mês:** entrou, a receber (parcelas futuras), saiu, total de descontos, lucro (entrou − saiu) e quantos clientes vieram por indicação. Há também uma lista filtrável por tipo, forma de pagamento e período.
 - Os valores são em reais e calculados em centavos (inteiros) para evitar erros de arredondamento.
 
@@ -156,7 +156,7 @@ A fazer → Contatado → Respondeu → Convertido
 - **Desconto e sinal (decisão do dono):** o desconto incide sobre o **valor total** do orçamento. O sinal já pago é abatido depois. Por exemplo, com orçamento de R$ 1.000, sinal de R$ 200 e cupom de 10%, o pagamento final é de R$ 700.
 - **Liberação da indicação (decisão do dono):** o sinal **não conta** como primeiro atendimento pago. O benefício de quem indicou só é liberado quando o indicado conclui um atendimento e o paga.
 - **No pagamento:** a tela lista os benefícios disponíveis do cliente. Só um pode ser aplicado por atendimento, e quem cobra pode ajustar o % caso a caso. Usar um benefício o marca como usado e o vincula ao lançamento.
-- **Aniversário:** o follow-up de aniversário pode gerar um cupom pessoal de uso único, com o % padrão do tipo aniversário e validade de 30 dias. *(decisão minha)*
+- **Aniversário:** o follow-up de aniversário pode gerar um cupom pessoal de uso único, com o % padrão do tipo aniversário e validade de 30 dias. _(decisão minha)_
 - **Visão geral:** benefícios ativos, pendentes, usados e vencidos, além de um ranking de quem mais indicou.
 
 **Estoque.**
@@ -167,7 +167,7 @@ A fazer → Contatado → Respondeu → Convertido
 - Cada item guarda o histórico de movimentos.
 - O item com quantidade igual ou abaixo do mínimo aparece no Início e com destaque na lista.
 
-**Configurações.** Tema claro/escuro e destaque. Cada estúdio começa com a paleta da sua marca, e o destaque escolhido é salvo por estúdio. *(decisão minha)* Prazos de cada evento de follow-up. Prazo de retorno por tipo de procedimento. % padrão por tipo de benefício. Mensagens modelo do WhatsApp por motivo. Dados do estúdio e expediente.
+**Configurações.** Tema claro/escuro e destaque. Cada estúdio começa com a paleta da sua marca, e o destaque escolhido é salvo por estúdio. _(decisão minha)_ Prazos de cada evento de follow-up. Prazo de retorno por tipo de procedimento. % padrão por tipo de benefício. Mensagens modelo do WhatsApp por motivo. Dados do estúdio e expediente.
 
 ### Dados fictícios
 
