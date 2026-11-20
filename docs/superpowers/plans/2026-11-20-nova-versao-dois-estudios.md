@@ -85,7 +85,7 @@ Saem do projeto: `src/pages/Agent.tsx`, `Inbox.tsx`, `Campaigns.tsx` e `Feedback
 
 ---
 
-### Tarefa 1: Remover IA, Atendimento, Campanhas e Pós-atendimento
+### Task 1: Remover IA, Atendimento, Campanhas e Pós-atendimento
 
 **Arquivos:**
 
@@ -119,7 +119,7 @@ it("não oferece mais IA, atendimento nem campanhas", async () => {
 
 ---
 
-### Tarefa 2: Tipos novos, dinheiro e faturamento (domínio)
+### Task 2: Tipos novos, dinheiro e faturamento (domínio)
 
 **Arquivos:**
 
@@ -328,7 +328,7 @@ Regras do `monthSummary`:
 
 ---
 
-### Tarefa 3: Follow-up (domínio)
+### Task 3: Follow-up (domínio)
 
 **Arquivos:**
 
@@ -416,7 +416,7 @@ Regras:
 
 ---
 
-### Tarefa 4: Fidelidade e registro de pagamento (domínio)
+### Task 4: Fidelidade e registro de pagamento (domínio)
 
 **Arquivos:**
 
@@ -503,7 +503,7 @@ Regras do `registerPayment`. Cada erro lança `Error` com exatamente a mensagem 
 
 ---
 
-### Tarefa 5: Estoque (domínio)
+### Task 5: Estoque (domínio)
 
 **Arquivos:**
 
@@ -554,7 +554,7 @@ Regras:
 
 ---
 
-### Tarefa 6: Estúdios, sessão, dados por estúdio e serviço
+### Task 6: Estúdios, sessão, dados por estúdio e serviço
 
 **Arquivos:**
 
@@ -695,7 +695,7 @@ O `open(route, tenant = "yannis")` chama `useSession.getState().login(...)` ante
 
 ---
 
-### Tarefa 7: Login, proteção de rotas, marca e navegação mobile
+### Task 7: Login, proteção de rotas, marca e navegação mobile
 
 **Arquivos:**
 
@@ -741,7 +741,7 @@ Comportamento:
 
 ---
 
-### Tarefa 8: Clientes (CRM) com abas de financeiro e fidelidade
+### Task 8: Clientes (CRM) com abas de financeiro e fidelidade
 
 **Arquivos:**
 
@@ -766,7 +766,7 @@ Comportamento:
 
 ---
 
-### Tarefa 9: Orçamentos e agenda com vocabulário do estúdio e pagamento
+### Task 9: Orçamentos e agenda com vocabulário do estúdio e pagamento
 
 **Arquivos:**
 
@@ -819,7 +819,7 @@ export function PaymentForm(props: {
 
 ---
 
-### Tarefa 10: Faturamento
+### Task 10: Faturamento
 
 **Arquivos:**
 
@@ -848,7 +848,7 @@ Comportamento:
 
 ---
 
-### Tarefa 11: Fidelidade/Descontos
+### Task 11: Fidelidade/Descontos
 
 **Arquivos:**
 
@@ -875,7 +875,7 @@ Comportamento. A tela tem as abas "Benefícios", "Cupons", "Promoções e sortei
 
 ---
 
-### Tarefa 12: Follow-up
+### Task 12: Follow-up
 
 **Arquivos:**
 
@@ -907,7 +907,7 @@ Comportamento:
 
 ---
 
-### Tarefa 13: Estoque
+### Task 13: Estoque
 
 **Arquivos:**
 
@@ -931,7 +931,7 @@ Comportamento:
 
 ---
 
-### Tarefa 14: Início e Configurações
+### Task 14: Início e Configurações
 
 **Arquivos:**
 
@@ -958,7 +958,7 @@ Comportamento:
 
 ---
 
-### Tarefa 15: Documentação e verificação final
+### Task 15: Documentação e verificação final
 
 **Arquivos:**
 
