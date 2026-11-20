@@ -1,13 +1,15 @@
 import { Modal } from "../components/Modal";
 import { useState } from "react";
-import { Columns3, List, Plus, UserRound } from "lucide-react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Columns3, List, Plus, Rows3, UserRound } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import { Badge, Data, Empty, Page } from "../components/Page";
 import { Editor, options } from "../components/Editor";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { useAction } from "../hooks/useStudio";
-import { dateOffset, initials } from "../mocks/studio";
+import { dateOffset, shortDate } from "../mocks/studio";
+import { ClientDetail } from "../features/ClientDetail";
+import { clientOptions } from "../features/studioFields";
 import { clientSchema } from "../schemas/forms";
 import { id, studio } from "../services/studio";
 import {
@@ -18,7 +20,12 @@ import {
 } from "../types/studio";
 function CRMView({ data }: { data: StudioData }) {
   const [params, setParams] = useSearchParams();
-  const [view, setView] = useState("kanban");
+  const [view, setView] = useState(() =>
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(max-width: 899.98px)").matches
+      ? "lista"
+      : "kanban",
+  );
   const [search, setSearch] = useState("");
   const [tag, setTag] = useState("");
   const [editing, setEditing] = useState(false);
@@ -84,6 +91,7 @@ function CRMView({ data }: { data: StudioData }) {
           ))}
         </select>
         <Button
+          className="desktop-only"
           aria-pressed={view === "kanban"}
           variant={view === "kanban" ? "default" : "outline"}
           onClick={() => setView("kanban")}
@@ -91,6 +99,14 @@ function CRMView({ data }: { data: StudioData }) {
           <Columns3 size={16} /> Kanban
         </Button>
         <Button
+          aria-pressed={view === "lista"}
+          variant={view === "lista" ? "default" : "outline"}
+          onClick={() => setView("lista")}
+        >
+          <Rows3 size={16} /> Lista
+        </Button>
+        <Button
+          className="desktop-only"
           aria-pressed={view === "table"}
           variant={view === "table" ? "default" : "outline"}
           onClick={() => setView("table")}
@@ -100,6 +116,45 @@ function CRMView({ data }: { data: StudioData }) {
       </div>
       {!clients.length ? (
         <Empty>Nenhum cliente encontrado.</Empty>
+      ) : view === "lista" ? (
+        <ul className="card-list">
+          {clients.map((c) => {
+            const next = data.sessions
+              .filter(
+                (s) =>
+                  s.clientId === c.id &&
+                  s.date >= dateOffset() &&
+                  s.status !== "Cancelado" &&
+                  s.status !== "Concluído",
+              )
+              .sort((a, b) =>
+                (a.date + a.time).localeCompare(b.date + b.time),
+              )[0];
+            return (
+              <li key={c.id} className="card-row">
+                <Button variant="ghost" onClick={() => open(c)}>
+                  <UserRound size={14} />
+                  {c.name}
+                </Button>
+                <small>
+                  {next
+                    ? `Próximo: ${shortDate(next.date)} · ${next.time}`
+                    : c.project}
+                </small>
+                <select
+                  aria-label={"Etapa de " + c.name}
+                  value={c.stage}
+                  disabled={action.isPending}
+                  onChange={(e) => move(c.id, e.target.value as Stage)}
+                >
+                  {stages.map((s) => (
+                    <option key={s}>{s}</option>
+                  ))}
+                </select>
+              </li>
+            );
+          })}
+        </ul>
       ) : view === "kanban" ? (
         <div className="board">
           {stages.map((stage) => (
@@ -204,6 +259,16 @@ function CRMView({ data }: { data: StudioData }) {
                 label: "Etiquetas (separadas por vírgula)",
                 wide: true,
               },
+              { name: "birthday", label: "Aniversário", type: "date" },
+              ...(isNew
+                ? [
+                    {
+                      name: "referredBy",
+                      label: "Indicado por",
+                      options: clientOptions(data.clients, "Ninguém"),
+                    },
+                  ]
+                : []),
               {
                 name: "project",
                 label: "Oportunidade / projeto",
@@ -220,6 +285,8 @@ function CRMView({ data }: { data: StudioData }) {
                     stage: client.stage,
                     tags: client.tags,
                     project: client.project,
+                    birthday: client.birthday ?? "",
+                    referredBy: client.referredBy ?? "",
                   }
                 : {
                     name: "",
@@ -228,14 +295,16 @@ function CRMView({ data }: { data: StudioData }) {
                     stage: stages[0],
                     tags: "",
                     project: "",
+                    birthday: "",
+                    referredBy: "",
                   }
             }
             schema={clientSchema.extend({ stage: clientSchema.shape.name })}
             close={close}
             save={(v) =>
               action.mutateAsync({
-                run: () =>
-                  studio.save("clients", {
+                run: () => {
+                  const saved = {
                     id: client?.id || id(),
                     created: client?.created || dateOffset(),
                     references: client?.references || [],
@@ -251,7 +320,15 @@ function CRMView({ data }: { data: StudioData }) {
                     stage: v.stage as Stage,
                     tags: v.tags,
                     project: v.project,
-                  }),
+                    birthday: v.birthday || undefined,
+                    referredBy: client
+                      ? client.referredBy
+                      : v.referredBy || undefined,
+                  };
+                  return client
+                    ? studio.save("clients", saved)
+                    : studio.addClient(saved);
+                },
                 message: "Cliente salvo.",
               })
             }
@@ -260,48 +337,11 @@ function CRMView({ data }: { data: StudioData }) {
       )}
       {client && !editing && !isNew && (
         <Modal title={client.name} close={close}>
-          <div className="detail-grid">
-            <div className="inline">
-              <span className="avatar lime">{initials(client.name)}</span>
-              <Badge tone="green">{client.stage}</Badge>
-              {client.tags && <Badge>{client.tags}</Badge>}
-            </div>
-            <p className="profile-meta">
-              {client.phone}
-              {client.email && " · " + client.email}
-            </p>
-            <h3>Oportunidade</h3>
-            <p>{client.project}</p>
-            <h3>Referências visuais</h3>
-            {client.references.length ? (
-              <div className="reference-grid">
-                {client.references.map((ref, i) => (
-                  <img
-                    className="reference"
-                    src={ref}
-                    alt={"Referência " + (i + 1)}
-                    key={i}
-                  />
-                ))}
-              </div>
-            ) : (
-              <p className="muted">Nenhuma referência registrada.</p>
-            )}
-            <h3>Histórico e timeline</h3>
-            <ul className="timeline">
-              {client.history.map((h, i) => (
-                <li key={i}>{h}</li>
-              ))}
-            </ul>
-            <div className="inline">
-              <Button onClick={() => setEditing(true)}>Editar cliente</Button>
-              <Button asChild>
-                <Link to={"/orcamentos?cliente=" + client.id}>
-                  Criar orçamento
-                </Link>
-              </Button>
-            </div>
-          </div>
+          <ClientDetail
+            data={data}
+            client={client}
+            edit={() => setEditing(true)}
+          />
         </Modal>
       )}
     </Page>

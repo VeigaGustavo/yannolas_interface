@@ -12,7 +12,7 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { App } from "../App";
-import { dateOffset } from "../mocks/studio";
+import { dateOffset, money } from "../mocks/studio";
 import { studio } from "../services/studio";
 import { useInterface } from "../stores/interface";
 import { useSession } from "../stores/session";
@@ -175,6 +175,51 @@ describe("protótipo do estúdio", () => {
       expect(screen.getByRole("link", { name })).toBeTruthy();
     expect(screen.queryByText("YANNIS | TATTOO")).toBeNull();
     expect(screen.getAllByText("LUMI").length).toBeGreaterThan(0);
+  });
+
+  it("registra indicação e mostra na ficha de quem indicou", async () => {
+    const user = open("/crm?novo=1");
+    const form = within(
+      await screen.findByRole("dialog", { name: "Novo lead" }),
+    );
+    await user.type(form.getByLabelText("Nome"), "Lia Prado");
+    await user.type(form.getByLabelText("Telefone"), "63999998888");
+    await user.type(form.getByLabelText("Oportunidade / projeto"), "Ramo");
+    await user.selectOptions(form.getByLabelText("Indicado por"), "c0");
+    await user.click(form.getByRole("button", { name: "Salvar" }));
+    await waitFor(async () =>
+      expect(
+        (await studio.get()).clients.find((c) => c.name === "Lia Prado")
+          ?.referredBy,
+      ).toBe("c0"),
+    );
+    cleanup();
+    const next = open("/crm?cliente=c0");
+    const ficha = within(
+      await screen.findByRole("dialog", { name: "Mariana Costa" }),
+    );
+    await next.click(ficha.getByRole("tab", { name: "Fidelidade" }));
+    const row = (await ficha.findByText("Lia Prado")).closest("li")!;
+    expect(within(row).getByText("Pendente")).toBeTruthy();
+  }, 15000);
+
+  it("mostra forma de pagamento e parcelas na ficha", async () => {
+    const data = await studio.get();
+    const p = data.payments.find((x) => x.installments.length > 1)!;
+    const client = data.clients.find((c) => c.id === p.clientId)!;
+    const user = open("/crm?cliente=" + client.id);
+    const ficha = within(
+      await screen.findByRole("dialog", { name: client.name }),
+    );
+    await user.click(ficha.getByRole("tab", { name: "Financeiro" }));
+    expect(
+      await ficha.findByText(
+        `Crédito · ${p.installments.length}x de ${money(p.installments[0].cents)}`.replace(
+          /\s/g,
+          " ",
+        ),
+      ),
+    ).toBeTruthy();
   });
 
   it("mostra a marca Yannis Tattoo na navegação", async () => {

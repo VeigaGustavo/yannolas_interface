@@ -15,6 +15,8 @@ export const clientSchema = z.object({
   email: z.email("E-mail inválido").or(z.literal("")),
   project: required,
   tags: z.string(),
+  birthday: z.string(),
+  referredBy: z.string(),
 });
 export const time = z
   .string()
