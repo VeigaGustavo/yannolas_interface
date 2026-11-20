@@ -12,13 +12,7 @@ export const shortDate = (date: string) =>
   new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short" }).format(
     new Date(date + "T12:00:00"),
   );
-export const money = (value: number) =>
-  new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(value);
+export { money } from "../domain/money";
 export const initials = (name: string) =>
   name
     .split(" ")
@@ -107,6 +101,13 @@ export function seed(): StudioData {
     clients,
     quotes,
     sessions,
+    payments: [],
+    expenses: [],
+    benefits: [],
+    coupons: [],
+    promotions: [],
+    followUps: [],
+    stock: [],
     settings: {
       studio: "Yannis Tattoo",
       artist: "Yannis Manolas",
@@ -115,6 +116,39 @@ export function seed(): StudioData {
       closesAt: "19:00",
       policies: "Sinal de R$ 150. Reagendamentos com 48 horas de antecedência.",
       notifications: true,
+      ...defaultSettings(),
     },
   };
 }
+
+export const defaultSettings = () => ({
+  followUp: {
+    quoteDays: 3,
+    postDays: 1,
+    inactiveDays: 180,
+    birthdayDays: 7,
+    retryDays: 3,
+    maxAttempts: 3,
+  },
+  procedures: [{ name: "Tatuagem", returnDays: 30 }],
+  benefitPct: {
+    Indicação: 10,
+    Promoção: 10,
+    Sorteio: 15,
+    Cupom: 10,
+    Aniversário: 10,
+  },
+  templates: {
+    "Orçamento sem resposta":
+      "Oi, {nome}! Conseguiu ver o orçamento que enviamos? Posso ajudar com alguma dúvida?",
+    "Pós-atendimento":
+      "Oi, {nome}! Como você está? Conta pra gente como ficou e se está tudo bem.",
+    Retorno: "Oi, {nome}! Já está na hora do seu retorno. Vamos agendar?",
+    Inativo: "Oi, {nome}! Sentimos sua falta. Que tal marcar um novo horário?",
+    Aniversário:
+      "Oi, {nome}! Feliz aniversário! Preparamos um desconto especial pra você.",
+    Indicação:
+      "Oi, {nome}! Obrigado pela indicação! Seu desconto já está disponível.",
+    Manual: "Oi, {nome}! Tudo bem?",
+  },
+});

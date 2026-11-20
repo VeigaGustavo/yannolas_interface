@@ -221,8 +221,8 @@ function QuotesView({ data }: { data: StudioData }) {
                     <br />
                     <small>{q.description}</small>
                   </td>
-                  <td>{money(q.value)}</td>
-                  <td>{money(q.deposit)}</td>
+                  <td>{money(q.value * 100)}</td>
+                  <td>{money(q.deposit * 100)}</td>
                   <td>{shortDate(q.validUntil)}</td>
                   <td>
                     <Badge
@@ -280,8 +280,8 @@ function QuotesView({ data }: { data: StudioData }) {
               {quote.size} · {quote.placement}
             </p>
             <p>
-              <strong>{money(quote.value)}</strong> · Sinal de{" "}
-              {money(quote.deposit)}
+              <strong>{money(quote.value * 100)}</strong> · Sinal de{" "}
+              {money(quote.deposit * 100)}
             </p>
             <p className="muted">Válido até {shortDate(quote.validUntil)}</p>
             {quote.reference && (
