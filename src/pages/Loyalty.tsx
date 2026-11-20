@@ -7,7 +7,7 @@ import { Editor } from "../components/Editor";
 import { Tabs } from "../components/Tabs";
 import { Button } from "../components/ui/button";
 import { benefitStatus, referralRanking } from "../domain/loyalty";
-import { addDays } from "../domain/money";
+import { addDays, isDate } from "../domain/money";
 import { useAction } from "../hooks/useStudio";
 import { dateOffset, shortDate } from "../mocks/studio";
 import { date, number, required } from "../schemas/forms";
@@ -55,6 +55,7 @@ function PromotionForm({
     if (!name.trim()) return setError("Informe o nome.");
     const n = Number(value);
     if (!(n > 0 && n <= 100)) return setError("Informe um % entre 1 e 100.");
+    if (!isDate(validUntil)) return setError("Informe a validade.");
     if (!chosen.length) return setError("Escolha ao menos um cliente.");
     setBusy(true);
     try {

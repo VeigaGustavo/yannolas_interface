@@ -74,6 +74,7 @@ export function advanceFollowUp(
   f.history.push({ at: today, stage, note });
   if (stage !== "Sem resposta") {
     f.stage = stage;
+    if (!isOpen(f)) followNext(data, f, today);
     return;
   }
   const { retryDays, maxAttempts } = data.settings.followUp;
@@ -85,6 +86,7 @@ export function advanceFollowUp(
       stage: "Perdido",
       note: `Sem resposta após ${f.attempts} tentativas`,
     });
+    followNext(data, f, today);
   } else {
     f.stage = "A fazer";
     f.due = addDays(today, retryDays);
@@ -130,6 +132,64 @@ export function onQuoteSaved(
         today,
         quote.status === "Aprovado" ? { convertedTo: quote.id } : {},
       );
+  }
+}
+
+/**
+ * Só existe um follow-up aberto por cliente e motivo. Quando um de orçamento
+ * ou de retorno fecha, abre o próximo que ficou esperando: outro orçamento
+ * pendente ou o retorno de um atendimento concluído ainda sem follow-up.
+ */
+function followNext(data: StudioData, closed: FollowUp, today: string) {
+  const covered = (refId: string) =>
+    data.followUps.some(
+      (f) =>
+        f.clientId === closed.clientId &&
+        f.reason === closed.reason &&
+        f.refId === refId,
+    );
+  if (closed.reason === "Orçamento sem resposta") {
+    const next = data.quotes.find(
+      (q) =>
+        q.clientId === closed.clientId &&
+        q.status === "Pendente" &&
+        !covered(q.id),
+    );
+    if (next)
+      ensureFollowUp(
+        data,
+        {
+          clientId: next.clientId,
+          reason: closed.reason,
+          due: addDays(today, data.settings.followUp.quoteDays),
+          refId: next.id,
+        },
+        today,
+      );
+  }
+  if (closed.reason === "Retorno") {
+    const next = data.sessions
+      .filter(
+        (s) =>
+          s.clientId === closed.clientId &&
+          s.status === "Concluído" &&
+          !covered(s.id),
+      )
+      .sort((a, b) => b.date.localeCompare(a.date))[0];
+    const days = next && returnDays(data, next.procedure);
+    if (next && days) {
+      const due = addDays(next.date, days);
+      ensureFollowUp(
+        data,
+        {
+          clientId: next.clientId,
+          reason: closed.reason,
+          due: due < today ? today : due,
+          refId: next.id,
+        },
+        today,
+      );
+    }
   }
 }
 

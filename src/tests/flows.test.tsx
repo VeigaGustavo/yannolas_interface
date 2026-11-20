@@ -10,7 +10,7 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "../App";
 import { dateOffset, money } from "../mocks/studio";
 import { parseCents } from "../domain/money";
@@ -421,6 +421,57 @@ describe("protótipo do estúdio", () => {
       await screen.findByText(`Compra: Filme PVC (2 ${item.unit})`),
     ).toBeTruthy();
   }, 15000);
+
+  it("não quebra a tela ao apagar a data do pagamento", async () => {
+    const user = open("/crm?cliente=c0");
+    const ficha = within(
+      await screen.findByRole("dialog", { name: "Mariana Costa" }),
+    );
+    await user.click(
+      ficha.getByRole("button", { name: "Registrar pagamento" }),
+    );
+    const form = within(
+      await screen.findByRole("dialog", { name: "Registrar pagamento" }),
+    );
+    await user.type(form.getByLabelText("Valor total"), "100");
+    fireEvent.change(form.getByLabelText("Data"), { target: { value: "" } });
+    await user.click(form.getByRole("button", { name: "Salvar" }));
+    expect(await form.findByText("Informe a data.")).toBeTruthy();
+  });
+
+  it("isola um erro de tela sem derrubar o painel", async () => {
+    const data = await studio.get();
+    localStorage.setItem(
+      "studio-data-v3-yannis",
+      JSON.stringify({
+        ...data,
+        payments: [{ ...data.payments[0], installments: null }],
+      }),
+    );
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    open("/faturamento");
+    expect(
+      await screen.findByText("Não foi possível abrir esta tela."),
+    ).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Clientes" })).toBeTruthy();
+    vi.restoreAllMocks();
+  });
+
+  it("mostra as etapas do follow-up no histórico do cliente", async () => {
+    await studio.addFollowUp({ clientId: "c0", due: dateOffset(), note: "" });
+    const f = (await studio.get()).followUps.find(
+      (x) => x.clientId === "c0" && x.reason === "Manual",
+    )!;
+    await studio.advanceFollowUp(f.id, "Contatado", "Ligação feita");
+    const user = open("/crm?cliente=c0");
+    const ficha = within(
+      await screen.findByRole("dialog", { name: "Mariana Costa" }),
+    );
+    await user.click(ficha.getByRole("tab", { name: "Histórico" }));
+    expect(
+      ficha.getByText(/Follow-up Manual: Contatado — Ligação feita/),
+    ).toBeTruthy();
+  });
 
   it("mostra a marca Yannis Tattoo na navegação", async () => {
     open();

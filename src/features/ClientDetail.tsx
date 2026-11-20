@@ -29,6 +29,20 @@ export function ClientDetail({
   const referred = data.clients.filter((c) => c.referredBy === client.id);
   const benefits = data.benefits.filter((b) => b.clientId === client.id);
   const status = (b: Benefit) => benefitStatus(b, today);
+  const timeline = [
+    ...client.history.map((text) => ({
+      at: /^\d{4}-\d{2}-\d{2}/.test(text) ? text.slice(0, 10) : "",
+      text,
+    })),
+    ...data.followUps
+      .filter((f) => f.clientId === client.id)
+      .flatMap((f) =>
+        f.history.map((h) => ({
+          at: h.at,
+          text: `${h.at} · Follow-up ${f.reason}: ${h.stage}${h.note ? " — " + h.note : ""}`,
+        })),
+      ),
+  ].sort((a, b) => b.at.localeCompare(a.at));
   return (
     <div className="detail-grid">
       <div className="inline">
@@ -71,8 +85,8 @@ export function ClientDetail({
       )}
       {tab === "Histórico" && (
         <ul className="timeline">
-          {client.history.map((h, i) => (
-            <li key={i}>{h}</li>
+          {timeline.map((h, i) => (
+            <li key={i}>{h.text}</li>
           ))}
         </ul>
       )}

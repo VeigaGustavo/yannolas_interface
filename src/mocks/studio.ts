@@ -31,10 +31,15 @@ export const dateOffset = (days = 0) => {
     String(d.getDate()).padStart(2, "0"),
   ].join("-");
 };
-export const shortDate = (date: string) =>
-  new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short" }).format(
-    new Date(date + "T12:00:00"),
-  );
+export const shortDate = (date: string) => {
+  const d = new Date(date + "T12:00:00");
+  return Number.isNaN(d.getTime())
+    ? "—"
+    : new Intl.DateTimeFormat("pt-BR", {
+        day: "2-digit",
+        month: "short",
+      }).format(d);
+};
 export { money } from "../domain/money";
 export const initials = (name: string) =>
   name

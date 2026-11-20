@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { useAction, useStudio } from "../hooks/useStudio";
 import { availableBenefits } from "../domain/loyalty";
 import {
+  isDate,
   centsInput,
   money,
   parseCents,
@@ -71,7 +72,9 @@ export function PaymentForm({
   const netCents = grossCents - discountCents - depositCents;
   const installments = method === "Crédito" ? Number(count) : 1;
   const parts =
-    netCents > 0 ? splitInstallments(netCents, installments, day) : [];
+    netCents > 0 && isDate(day)
+      ? splitInstallments(netCents, installments, day)
+      : [];
   const field = (name: string) => prefix + name;
 
   const submit = async (e: FormEvent) => {
@@ -80,6 +83,7 @@ export function PaymentForm({
     setError("");
     if (!clientId) return setError("Selecione o cliente.");
     if (!(grossCents > 0)) return setError("Informe o valor total.");
+    if (!isDate(day)) return setError("Informe a data.");
     if (!Number.isFinite(depositCents) || depositCents < 0)
       return setError("Informe um sinal válido.");
     if (discount === "manual" && !reason.trim())

@@ -54,3 +54,8 @@ export function splitInstallments(
 /** Valor em centavos para edição em campo de texto: 123456 -> "1234,56". */
 export const centsInput = (cents: number) =>
   (cents / 100).toFixed(2).replace(".", ",");
+
+/** Data no formato YYYY-MM-DD que existe no calendário. */
+export const isDate = (value: string) =>
+  /^\d{4}-\d{2}-\d{2}$/.test(value) &&
+  new Date(value + "T12:00:00Z").toISOString().slice(0, 10) === value;

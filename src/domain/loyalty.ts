@@ -1,5 +1,5 @@
 import { ensureFollowUp } from "./followups";
-import { money, splitInstallments } from "./money";
+import { isDate, money, splitInstallments } from "./money";
 import type {
   Benefit,
   Client,
@@ -62,6 +62,7 @@ export function createPromotion(
   today: string,
   newId: () => string = uuid,
 ) {
+  if (!isDate(p.validUntil)) throw new Error("Informe a validade.");
   if (!clientIds.length) throw new Error("Escolha ao menos um cliente.");
   data.promotions.unshift(p);
   for (const clientId of clientIds)
@@ -112,6 +113,8 @@ export function registerPayment(
 ): Payment {
   const client = data.clients.find((c) => c.id === input.clientId);
   if (!client) throw new Error("Cliente não encontrado.");
+  if (!isDate(input.date)) throw new Error("Informe a data.");
+  if (!(input.depositCents >= 0)) throw new Error("Informe um sinal válido.");
   if (!(input.grossCents > 0)) throw new Error("Informe o valor total.");
   if (input.benefitId && input.couponCode?.trim())
     throw new Error("Use apenas um desconto por atendimento.");

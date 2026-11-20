@@ -1,4 +1,5 @@
 import { Modal } from "./Modal";
+import { ErrorBoundary } from "./ErrorBoundary";
 import { useQueryClient } from "@tanstack/react-query";
 import { useStudio, useTenant } from "../hooks/useStudio";
 import { useSession } from "../stores/session";
@@ -220,7 +221,9 @@ export function Layout() {
               </div>
             }
           >
-            <Outlet />
+            <ErrorBoundary key={location.pathname}>
+              <Outlet />
+            </ErrorBoundary>
           </Suspense>
         </main>
       </div>
