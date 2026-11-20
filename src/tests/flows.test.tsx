@@ -331,6 +331,35 @@ describe("protótipo do estúdio", () => {
     await waitFor(() => expect(saiu()).toBe(before + 5000));
   }, 15000);
 
+  it("cria cupom e sorteio na fidelidade", async () => {
+    const user = open("/fidelidade");
+    await user.click(await screen.findByRole("tab", { name: "Cupons" }));
+    await user.click(screen.getByRole("button", { name: "Novo cupom" }));
+    let form = within(
+      await screen.findByRole("dialog", { name: "Novo cupom" }),
+    );
+    await user.type(form.getByLabelText("Código"), "verao15");
+    await user.clear(form.getByLabelText("% de desconto"));
+    await user.type(form.getByLabelText("% de desconto"), "15");
+    await user.click(form.getByRole("button", { name: "Salvar" }));
+    await screen.findByText("VERAO15");
+
+    await user.click(screen.getByRole("tab", { name: "Promoções e sorteios" }));
+    await user.click(screen.getByRole("button", { name: "Nova promoção" }));
+    form = within(await screen.findByRole("dialog", { name: "Nova promoção" }));
+    await user.type(form.getByLabelText("Nome"), "Sorteio de Natal");
+    await user.selectOptions(form.getByLabelText("Tipo"), "Sorteio");
+    await user.click(form.getByRole("checkbox", { name: "Rafael Mendes" }));
+    await user.click(form.getByRole("button", { name: "Salvar" }));
+    await waitFor(async () =>
+      expect(
+        (await studio.get()).benefits.find(
+          (b) => b.label === "Sorteio de Natal",
+        ),
+      ).toMatchObject({ clientId: "c1", pct: 15, status: "Disponível" }),
+    );
+  }, 15000);
+
   it("mostra a marca Yannis Tattoo na navegação", async () => {
     open();
     expect(
