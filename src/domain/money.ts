@@ -50,3 +50,7 @@ export function splitInstallments(
     cents: part + (i === 0 ? rest : 0),
   }));
 }
+
+/** Valor em centavos para edição em campo de texto: 123456 -> "1234,56". */
+export const centsInput = (cents: number) =>
+  (cents / 100).toFixed(2).replace(".", ",");

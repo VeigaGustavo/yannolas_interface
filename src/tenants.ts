@@ -13,6 +13,7 @@ export interface Tenant {
     atendimentos: string;
     servico: string;
     profissional: string;
+    novo: string;
   };
   quoteFields: { name: string; label: string }[];
   email: string;
@@ -33,6 +34,7 @@ export const tenants: Record<TenantId, Tenant> = {
       atendimentos: "Sessões",
       servico: "Tatuagem",
       profissional: "Tatuador",
+      novo: "Nova sessão",
     },
     quoteFields: [
       { name: "placement", label: "Local do corpo" },
@@ -54,6 +56,7 @@ export const tenants: Record<TenantId, Tenant> = {
       atendimentos: "Procedimentos",
       servico: "Procedimento estético",
       profissional: "Biomédica",
+      novo: "Novo procedimento",
     },
     quoteFields: [
       { name: "area", label: "Região tratada" },

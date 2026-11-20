@@ -45,7 +45,7 @@ export default function Login() {
           />
         </label>
         {error && (
-          <p className="error" role="alert">
+          <p className="field-error" role="alert">
             {error}
           </p>
         )}

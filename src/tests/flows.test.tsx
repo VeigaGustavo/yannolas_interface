@@ -222,6 +222,81 @@ describe("protótipo do estúdio", () => {
     ).toBeTruthy();
   });
 
+  it("usa os campos de orçamento do estúdio", async () => {
+    open("/orcamentos?novo=1", "lumi");
+    const form = within(
+      await screen.findByRole("dialog", { name: "Novo orçamento" }),
+    );
+    expect(form.getByLabelText("Região tratada")).toBeTruthy();
+    expect(form.queryByLabelText("Local do corpo")).toBeNull();
+  });
+
+  it("conclui o atendimento e registra o pagamento com cupom e sinal", async () => {
+    await studio.save("quotes", {
+      id: "qx",
+      clientId: "c1",
+      description: "Rosa no ombro",
+      details: {},
+      valueCents: 100000,
+      depositCents: 20000,
+      validUntil: dateOffset(30),
+      status: "Aprovado",
+      reference: "",
+    });
+    await studio.pay({
+      clientId: "c1",
+      quoteId: "qx",
+      kind: "Sinal",
+      date: dateOffset(),
+      grossCents: 20000,
+      depositCents: 0,
+      method: "Pix",
+      installments: 1,
+    });
+    await studio.save("sessions", {
+      id: "sx",
+      clientId: "c1",
+      quoteId: "qx",
+      title: "Rosa no ombro",
+      date: dateOffset(40),
+      time: "10:00",
+      duration: 60,
+      status: "Confirmado",
+    });
+    const user = open("/agenda?sessao=sx");
+    await user.click(await screen.findByRole("button", { name: "Concluir" }));
+    const form = within(
+      await screen.findByRole("dialog", { name: "Registrar pagamento" }),
+    );
+    expect((form.getByLabelText("Valor total") as HTMLInputElement).value).toBe(
+      "1000,00",
+    );
+    expect(
+      (form.getByLabelText("Sinal já pago") as HTMLInputElement).value,
+    ).toBe("200,00");
+    await user.selectOptions(form.getByLabelText("Desconto"), "cupom");
+    await user.type(form.getByLabelText("Código do cupom"), "flash10");
+    await user.selectOptions(
+      form.getByLabelText("Forma de pagamento"),
+      "Crédito",
+    );
+    await user.selectOptions(form.getByLabelText("Parcelas"), "2");
+    expect(form.getByText(/a pagar R\$\s700,00/)).toBeTruthy();
+    expect(form.getByText(/2x de R\$\s350,00/)).toBeTruthy();
+    const save = form.getByRole("button", { name: "Salvar" });
+    await user.dblClick(save);
+    await waitFor(async () =>
+      expect(
+        (await studio.get()).payments.filter((p) => p.sessionId === "sx"),
+      ).toHaveLength(1),
+    );
+    const paid = (await studio.get()).payments.find(
+      (p) => p.sessionId === "sx",
+    )!;
+    expect(paid).toMatchObject({ netCents: 70000, discountCents: 10000 });
+    expect(paid.installments).toHaveLength(2);
+  }, 15000);
+
   it("mostra a marca Yannis Tattoo na navegação", async () => {
     open();
     expect(

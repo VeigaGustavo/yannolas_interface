@@ -8,26 +8,30 @@ import { Editor, fileAccept, fileData, options } from "../components/Editor";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { clientOptions, quoteStatuses } from "../features/studioFields";
-import { useAction } from "../hooks/useStudio";
+import { useAction, useTenant } from "../hooks/useStudio";
+import { PaymentForm } from "../components/PaymentForm";
+import { centsInput, parseCents } from "../domain/money";
 import { dateOffset, money, shortDate } from "../mocks/studio";
-import { date, number, required } from "../schemas/forms";
+import { date, required } from "../schemas/forms";
 import { id, studio } from "../services/studio";
 import type { Quote, StudioData } from "../types/studio";
-const schema = z
-  .object({
-    clientId: required,
-    description: required,
-    size: required,
-    placement: required,
-    value: number(1),
-    deposit: number(0),
-    validUntil: date,
-    status: z.enum(quoteStatuses),
-  })
-  .refine((v) => Number(v.deposit) <= Number(v.value), {
-    path: ["deposit"],
-    message: "O sinal deve ser menor ou igual ao total.",
-  });
+const reais = (min: number) =>
+  required.refine((v) => parseCents(v) >= min, "Informe um valor válido");
+const makeSchema = (fields: { name: string }[]) =>
+  z
+    .object({
+      clientId: required,
+      description: required,
+      ...Object.fromEntries(fields.map((f) => [f.name, z.string()])),
+      value: reais(1),
+      deposit: reais(0),
+      validUntil: date,
+      status: z.enum(quoteStatuses),
+    })
+    .refine((v) => parseCents(v.deposit) <= parseCents(v.value), {
+      path: ["deposit"],
+      message: "O sinal deve ser menor ou igual ao total.",
+    });
 function QuoteForm({
   data,
   quote,
@@ -46,6 +50,8 @@ function QuoteForm({
   );
   const [error, setError] = useState("");
   const action = useAction();
+  const tenant = useTenant();
+  const fields = tenant.quoteFields;
   return (
     <Editor
       fields={[
@@ -61,10 +67,9 @@ function QuoteForm({
           type: "textarea",
           wide: true,
         },
-        { name: "size", label: "Tamanho" },
-        { name: "placement", label: "Região do corpo" },
-        { name: "value", label: "Valor estimado (R$)", type: "number" },
-        { name: "deposit", label: "Sinal (R$)", type: "number" },
+        ...fields,
+        { name: "value", label: "Valor estimado (R$)" },
+        { name: "deposit", label: "Sinal (R$)" },
         { name: "validUntil", label: "Validade", type: "date" },
         { name: "status", label: "Status", options: options(quoteStatuses) },
       ]}
@@ -73,10 +78,11 @@ function QuoteForm({
           ? {
               clientId: quote.clientId,
               description: quote.description,
-              size: quote.details.size ?? "",
-              placement: quote.details.placement ?? "",
-              value: String(quote.valueCents / 100),
-              deposit: String(quote.depositCents / 100),
+              ...Object.fromEntries(
+                fields.map((f) => [f.name, quote.details[f.name] ?? ""]),
+              ),
+              value: centsInput(quote.valueCents),
+              deposit: centsInput(quote.depositCents),
               validUntil: quote.validUntil,
               status: quote.status,
             }
@@ -84,15 +90,14 @@ function QuoteForm({
               clientId,
               description:
                 data.clients.find((c) => c.id === clientId)?.project || "",
-              size: "",
-              placement: "",
+              ...Object.fromEntries(fields.map((f) => [f.name, ""])),
               value: "",
-              deposit: "150",
+              deposit: centsInput(15000),
               validUntil: dateOffset(14),
               status: "Rascunho",
             }
       }
-      schema={schema}
+      schema={makeSchema(fields)}
       extra={
         <div className="wide stack">
           <label className="field">
@@ -137,13 +142,11 @@ function QuoteForm({
               id: quote?.id || id(),
               clientId: v.clientId,
               description: v.description,
-              details: {
-                ...quote?.details,
-                size: v.size,
-                placement: v.placement,
-              },
-              valueCents: Math.round(Number(v.value) * 100),
-              depositCents: Math.round(Number(v.deposit) * 100),
+              details: Object.fromEntries(
+                fields.map((f) => [f.name, v[f.name]]),
+              ),
+              valueCents: parseCents(v.value),
+              depositCents: parseCents(v.deposit),
               validUntil: v.validUntil,
               status: v.status as Quote["status"],
               reference,
@@ -160,6 +163,8 @@ function QuotesView({ data }: { data: StudioData }) {
   const [editing, setEditing] = useState(false);
   const [filter, setFilter] = useState("");
   const [search, setSearch] = useState("");
+  const [paying, setPaying] = useState(false);
+  const tenant = useTenant();
   const quote = data.quotes.find((q) => q.id === selected);
   const clientId = params.get("cliente") || "";
   const creating = params.has("novo") || !!clientId;
@@ -167,6 +172,7 @@ function QuotesView({ data }: { data: StudioData }) {
     setParams({});
     setSelected("");
     setEditing(false);
+    setPaying(false);
   };
   const clientName = (key: string) =>
     data.clients.find((c) => c.id === key)?.name || "Cliente indisponível";
@@ -176,6 +182,9 @@ function QuotesView({ data }: { data: StudioData }) {
       (clientName(q.clientId) + " " + q.description)
         .toLowerCase()
         .includes(search.toLowerCase()),
+  );
+  const depositPaid = data.payments.find(
+    (p) => p.kind === "Sinal" && p.quoteId === quote?.id,
   );
   const linked = data.sessions.find(
     (s) => s.quoteId === quote?.id && s.status !== "Cancelado",
@@ -274,8 +283,23 @@ function QuotesView({ data }: { data: StudioData }) {
           />
         </Modal>
       )}
-      {quote && !editing && !creating && (
-        <Modal title="Proposta de tatuagem" close={close}>
+      {quote && paying && (
+        <Modal title="Registrar sinal" close={() => setPaying(false)}>
+          <PaymentForm
+            clientId={quote.clientId}
+            quoteId={quote.id}
+            kind="Sinal"
+            defaultGrossCents={quote.depositCents}
+            defaultDepositCents={0}
+            close={() => setPaying(false)}
+          />
+        </Modal>
+      )}
+      {quote && !editing && !creating && !paying && (
+        <Modal
+          title={"Proposta de " + tenant.terms.servico.toLowerCase()}
+          close={close}
+        >
           <div className="detail-grid">
             <div className="inline">
               <Badge tone={quote.status === "Aprovado" ? "green" : "amber"}>
@@ -297,8 +321,19 @@ function QuotesView({ data }: { data: StudioData }) {
                 alt="Referência da proposta"
               />
             )}
-            <div className="inline">
+            {depositPaid && (
+              <p className="muted">
+                Sinal pago em {shortDate(depositPaid.date)}.
+              </p>
+            )}
+            <div className="inline wrap">
               <Button onClick={() => setEditing(true)}>Editar orçamento</Button>
+              <Button
+                disabled={!!depositPaid || quote.depositCents <= 0}
+                onClick={() => setPaying(true)}
+              >
+                Registrar sinal
+              </Button>
               {linked ? (
                 <Button asChild>
                   <Link to={"/agenda?sessao=" + linked.id}>Ver sessão</Link>

@@ -9,6 +9,7 @@ import { Card } from "../components/ui/card";
 import { useAction } from "../hooks/useStudio";
 import { dateOffset, shortDate } from "../mocks/studio";
 import { ClientDetail } from "../features/ClientDetail";
+import { PaymentForm } from "../components/PaymentForm";
 import { clientOptions } from "../features/studioFields";
 import { clientSchema } from "../schemas/forms";
 import { id, studio } from "../services/studio";
@@ -29,6 +30,7 @@ function CRMView({ data }: { data: StudioData }) {
   const [search, setSearch] = useState("");
   const [tag, setTag] = useState("");
   const [editing, setEditing] = useState(false);
+  const [paying, setPaying] = useState(false);
   const action = useAction();
   const client = data.clients.find((c) => c.id === params.get("cliente"));
   const isNew = params.has("novo");
@@ -335,12 +337,24 @@ function CRMView({ data }: { data: StudioData }) {
           />
         </Modal>
       )}
-      {client && !editing && !isNew && (
+      {client && paying && (
+        <Modal title="Registrar pagamento" close={() => setPaying(false)}>
+          <PaymentForm
+            clientId={client.id}
+            kind="Atendimento"
+            defaultGrossCents={0}
+            defaultDepositCents={0}
+            close={() => setPaying(false)}
+          />
+        </Modal>
+      )}
+      {client && !editing && !isNew && !paying && (
         <Modal title={client.name} close={close}>
           <ClientDetail
             data={data}
             client={client}
             edit={() => setEditing(true)}
+            pay={() => setPaying(true)}
           />
         </Modal>
       )}

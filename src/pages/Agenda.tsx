@@ -23,7 +23,8 @@ import {
   workingHours,
 } from "../features/calendar";
 import { clientOptions, sessionStatuses } from "../features/studioFields";
-import { useAction } from "../hooks/useStudio";
+import { useAction, useTenant } from "../hooks/useStudio";
+import { PaymentForm } from "../components/PaymentForm";
 import { dateOffset, shortDate } from "../mocks/studio";
 import { date, number, required, time } from "../schemas/forms";
 import { id, studio } from "../services/studio";
@@ -42,6 +43,7 @@ const schema = z
       "Use minutos inteiros",
     ),
     status: z.enum(sessionStatuses),
+    procedure: z.string(),
   })
   .superRefine((v, ctx) => {
     if (v.status !== "Bloqueado" && !v.clientId)
@@ -106,10 +108,20 @@ function SessionForm({
         { name: "time", label: "Horário", type: "time" },
         { name: "duration", label: "Duração (minutos)", type: "number" },
         { name: "status", label: "Status", options: options(sessionStatuses) },
+        {
+          name: "procedure",
+          label: "Procedimento",
+          options: options(data.settings.procedures.map((p) => p.name)),
+        },
       ]}
       values={
         session
-          ? { ...session, duration: String(session.duration) }
+          ? {
+              ...session,
+              duration: String(session.duration),
+              procedure:
+                session.procedure ?? data.settings.procedures[0]?.name ?? "",
+            }
           : {
               title: blocked ? "Horário bloqueado" : quote?.description || "",
               clientId: quote?.clientId || clientId,
@@ -118,6 +130,7 @@ function SessionForm({
               time: time || workingHours(data.settings).opensAt,
               duration: time ? "60" : "90",
               status: blocked ? "Bloqueado" : "Confirmado",
+              procedure: data.settings.procedures[0]?.name ?? "",
             }
       }
       schema={schema}
@@ -134,6 +147,7 @@ function SessionForm({
               time: v.time,
               duration: Number(v.duration),
               status: v.status as Session["status"],
+              ...(v.status === "Bloqueado" ? {} : { procedure: v.procedure }),
             }),
           message: "Agenda atualizada.",
         })
@@ -149,7 +163,15 @@ function AgendaView({ data }: { data: StudioData }) {
         dateOffset(),
     ),
   );
-  const [view, setView] = useState("Mês");
+  const [view, setView] = useState(() =>
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(max-width: 899.98px)").matches
+      ? "Dia"
+      : "Mês",
+  );
+  const [paying, setPaying] = useState(false);
+  const tenant = useTenant();
+  const { terms } = tenant;
   const [time, setTime] = useState("");
   const [editing, setEditing] = useState(false);
   const action = useAction();
@@ -165,8 +187,16 @@ function AgendaView({ data }: { data: StudioData }) {
       .sort((a, b) => a.time.localeCompare(b.time));
   const close = () => {
     setEditing(false);
+    setPaying(false);
     setParams({});
   };
+  const paid = (s: Session) =>
+    data.payments.some((p) => p.kind === "Atendimento" && p.sessionId === s.id);
+  const quoteOf = (s: Session) => data.quotes.find((q) => q.id === s.quoteId);
+  const depositOf = (s: Session) =>
+    data.payments
+      .filter((p) => p.kind === "Sinal" && s.quoteId && p.quoteId === s.quoteId)
+      .reduce((sum, p) => sum + p.grossCents, 0);
   const open = (id: string) => {
     setEditing(false);
     setParams({ sessao: id });
@@ -187,7 +217,7 @@ function AgendaView({ data }: { data: StudioData }) {
   return (
     <Page
       title="Agenda"
-      description="Organize sessões, horários disponíveis e bloqueios do estúdio."
+      description={`Organize ${terms.atendimentos.toLowerCase()}, horários disponíveis e bloqueios.`}
       actions={
         <>
           <Button
@@ -199,7 +229,7 @@ function AgendaView({ data }: { data: StudioData }) {
             <Lock size={15} /> Bloquear horário
           </Button>
           <Button variant="default" onClick={() => create()}>
-            <Plus size={17} /> Nova sessão
+            <Plus size={17} /> {terms.novo}
           </Button>
         </>
       }
@@ -311,7 +341,8 @@ function AgendaView({ data }: { data: StudioData }) {
         <Card className="pad">
           <div className="section-head">
             <h2 className="inline">
-              <CalendarDays size={17} /> Sessões de {shortDate(key)}
+              <CalendarDays size={17} /> {terms.atendimentos} de{" "}
+              {shortDate(key)}
             </h2>
           </div>
           {entries(key).length ? (
@@ -333,7 +364,7 @@ function AgendaView({ data }: { data: StudioData }) {
               </div>
             ))
           ) : (
-            <Empty>Nenhuma sessão neste dia.</Empty>
+            <Empty>Nada agendado neste dia.</Empty>
           )}
         </Card>
         <Card className="pad">
@@ -365,8 +396,8 @@ function AgendaView({ data }: { data: StudioData }) {
             blocked
               ? "Bloquear horário"
               : editing
-                ? "Editar ou reagendar sessão"
-                : "Nova sessão"
+                ? "Editar ou reagendar"
+                : terms.novo
           }
           close={close}
         >
@@ -382,7 +413,20 @@ function AgendaView({ data }: { data: StudioData }) {
           />
         </Modal>
       )}
-      {session && !editing && !creating && (
+      {session && paying && (
+        <Modal title="Registrar pagamento" close={() => setPaying(false)}>
+          <PaymentForm
+            clientId={session.clientId}
+            sessionId={session.id}
+            quoteId={session.quoteId || undefined}
+            kind="Atendimento"
+            defaultGrossCents={quoteOf(session)?.valueCents ?? 0}
+            defaultDepositCents={depositOf(session)}
+            close={() => setPaying(false)}
+          />
+        </Modal>
+      )}
+      {session && !editing && !creating && !paying && (
         <Modal title={session.title} close={close}>
           <div className="detail-grid">
             <div className="inline">
@@ -406,7 +450,43 @@ function AgendaView({ data }: { data: StudioData }) {
                 {data.quotes.find((q) => q.id === session.quoteId)?.description}
               </p>
             )}
-            <div className="inline">
+            {session.procedure && <p>{session.procedure}</p>}
+            {session.status === "Concluído" && paid(session) && (
+              <Badge tone="green">Pago</Badge>
+            )}
+            <div className="inline wrap">
+              {session.clientId &&
+                (session.status === "Confirmado" ||
+                  session.status === "Pendente") && (
+                  <Button
+                    variant="default"
+                    disabled={action.isPending}
+                    onClick={async () => {
+                      try {
+                        await action.mutateAsync({
+                          run: () =>
+                            studio.save("sessions", {
+                              ...session,
+                              status: "Concluído",
+                            }),
+                          message: "Atendimento concluído.",
+                        });
+                        setPaying(true);
+                      } catch {
+                        /* o mutation informa o erro */
+                      }
+                    }}
+                  >
+                    Concluir
+                  </Button>
+                )}
+              {session.clientId &&
+                session.status === "Concluído" &&
+                !paid(session) && (
+                  <Button variant="default" onClick={() => setPaying(true)}>
+                    Registrar pagamento
+                  </Button>
+                )}
               <Button onClick={() => setEditing(true)}>
                 Editar / reagendar
               </Button>
