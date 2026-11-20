@@ -1500,3 +1500,52 @@ tr:last-child td {
     display: none;
   }
 }
+.month-switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.month-switch h2 {
+  min-width: 0;
+  flex: 1;
+  text-align: center;
+}
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.summary-card {
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+}
+.summary-card small {
+  color: var(--muted);
+}
+.summary-card strong {
+  font-size: 1.2rem;
+}
+.row-end {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.amount {
+  white-space: nowrap;
+}
+@media (max-width: 639.98px) {
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .plain-list li {
+    flex-wrap: wrap;
+  }
+}

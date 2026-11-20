@@ -8,6 +8,7 @@ const CRM = lazy(() => import("./pages/CRM"));
 const Quotes = lazy(() => import("./pages/Quotes"));
 const Agenda = lazy(() => import("./pages/Agenda"));
 const Settings = lazy(() => import("./pages/Settings"));
+const Billing = lazy(() => import("./pages/Billing"));
 
 function RequireSession({ children }: { children: ReactNode }) {
   const tenantId = useSession((s) => s.tenantId);
@@ -34,7 +35,7 @@ export function App() {
         <Route index element={<Dashboard />} />
         <Route path="crm" element={<CRM />} />
         <Route path="follow-up" element={<Soon title="Follow-up" />} />
-        <Route path="faturamento" element={<Soon title="Faturamento" />} />
+        <Route path="faturamento" element={<Billing />} />
         <Route path="fidelidade" element={<Soon title="Fidelidade" />} />
         <Route path="estoque" element={<Soon title="Estoque" />} />
         <Route path="orcamentos" element={<Quotes />} />

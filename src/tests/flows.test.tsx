@@ -13,6 +13,7 @@ import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { App } from "../App";
 import { dateOffset, money } from "../mocks/studio";
+import { parseCents } from "../domain/money";
 import { studio } from "../services/studio";
 import { useInterface } from "../stores/interface";
 import { useSession } from "../stores/session";
@@ -295,6 +296,39 @@ describe("protótipo do estúdio", () => {
     )!;
     expect(paid).toMatchObject({ netCents: 70000, discountCents: 10000 });
     expect(paid.installments).toHaveLength(2);
+  }, 15000);
+
+  it("fecha o faturamento do mês com as entradas recebidas", async () => {
+    const user = open("/faturamento");
+    const entrou = await screen.findByRole("group", { name: "Entrou" });
+    const total = parseCents(within(entrou).getByText(/R\$/).textContent!);
+    const rows = within(
+      screen.getByRole("list", { name: "Entradas do mês" }),
+    ).getAllByRole("listitem");
+    const received = rows
+      .filter((r) => within(r).queryByText("Recebida"))
+      .reduce(
+        (sum, r) => sum + parseCents(r.querySelector(".amount")!.textContent!),
+        0,
+      );
+    expect(received).toBe(total);
+    expect(total).toBeGreaterThan(0);
+
+    const saiu = () =>
+      parseCents(
+        within(screen.getByRole("group", { name: "Saiu" })).getByText(/R\$/)
+          .textContent!,
+      );
+    const before = saiu();
+    await user.click(screen.getByRole("tab", { name: "Despesas" }));
+    await user.click(screen.getByRole("button", { name: "Nova despesa" }));
+    const form = within(
+      await screen.findByRole("dialog", { name: "Nova despesa" }),
+    );
+    await user.type(form.getByLabelText("Descrição"), "Energia");
+    await user.type(form.getByLabelText("Valor (R$)"), "50,00");
+    await user.click(form.getByRole("button", { name: "Salvar" }));
+    await waitFor(() => expect(saiu()).toBe(before + 5000));
   }, 15000);
 
   it("mostra a marca Yannis Tattoo na navegação", async () => {
