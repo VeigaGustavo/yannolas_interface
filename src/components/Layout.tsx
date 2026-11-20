@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Suspense, useEffect, useState } from "react";
-import { useInterface } from "../stores/interface";
+import { useAppearance, useInterface } from "../stores/interface";
 import { Button } from "./ui/button";
 export const navigation = [
   {
@@ -42,8 +42,8 @@ export const navigation = [
   },
 ];
 export function Layout() {
-  const { theme, accent, setTheme, menu, setMenu, notice, notify } =
-    useInterface();
+  const { menu, setMenu, notice, notify } = useInterface();
+  const { theme, accent, setTheme } = useAppearance();
   const data = useStudio().data;
   const reminders = 0; // passa a contar follow-ups na Tarefa 14
   const artist = data?.settings.artist || "Yannis Manolas";

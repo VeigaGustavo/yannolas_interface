@@ -15,10 +15,13 @@ import { App } from "../App";
 import { dateOffset } from "../mocks/studio";
 import { studio } from "../services/studio";
 import { useInterface } from "../stores/interface";
+import { useSession } from "../stores/session";
 import type { Session } from "../types/studio";
 
 beforeEach(() => {
   localStorage.clear();
+  useSession.getState().logout();
+  useSession.getState().login("yannis@demo.app", "demo123");
   HTMLDialogElement.prototype.showModal = function () {
     this.setAttribute("open", "");
   };
@@ -138,6 +141,8 @@ describe("protótipo do estúdio", () => {
       expect(screen.queryByRole("link", { name })).toBeNull();
   });
 
+  it.todo("troca de estúdio sem mostrar dados do anterior");
+
   it("mostra a marca Yannis Tattoo na navegação", async () => {
     open();
     expect(
@@ -147,13 +152,13 @@ describe("protótipo do estúdio", () => {
   });
 
   it("restaura o laranja como cor de destaque", async () => {
-    useInterface.getState().setAccent("#123456");
+    useInterface.getState().setAccent("yannis", "#123456");
     const user = open("/configuracoes");
     await user.click(await screen.findByRole("button", { name: "Aparência" }));
     await user.click(
       screen.getByRole("button", { name: "Restaurar cor padrão" }),
     );
-    expect(useInterface.getState().accent).toBe("#ff9100");
+    expect(useInterface.getState().accents.yannis).toBe("#ff9100");
   });
 
   it("ignora dados salvos pela versão anterior do protótipo", async () => {
@@ -163,10 +168,10 @@ describe("protótipo do estúdio", () => {
   });
 
   it("recupera a tela após um erro de leitura", async () => {
-    localStorage.setItem("tattoo-studio-data-v2", "{");
+    localStorage.setItem("studio-data-v3-yannis", "{");
     const user = open();
     await screen.findByRole("alert");
-    localStorage.removeItem("tattoo-studio-data-v2");
+    localStorage.removeItem("studio-data-v3-yannis");
     await user.click(screen.getByRole("button", { name: "Tentar novamente" }));
     await screen.findByRole("heading", { name: /Olá, Yann/ });
   });

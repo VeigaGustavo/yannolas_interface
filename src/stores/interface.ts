@@ -1,30 +1,50 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { tenants } from "../tenants";
+import type { TenantId } from "../types/studio";
+import { useSession } from "./session";
+
+type Theme = "dark" | "light";
 interface InterfaceState {
-  theme: "dark" | "light";
-  accent: string;
+  themes: Partial<Record<TenantId, Theme>>;
+  accents: Partial<Record<TenantId, string>>;
   menu: boolean;
   notice: string;
-  setTheme: (theme: InterfaceState["theme"]) => void;
-  setAccent: (accent: string) => void;
+  setTheme: (tenant: TenantId, theme: Theme) => void;
+  setAccent: (tenant: TenantId, accent: string) => void;
   setMenu: (menu: boolean) => void;
   notify: (notice: string) => void;
 }
 export const useInterface = create<InterfaceState>()(
   persist(
     (set) => ({
-      theme: "dark",
-      accent: "#ff9100",
+      themes: {},
+      accents: {},
       menu: false,
       notice: "",
-      setTheme: (theme) => set({ theme }),
-      setAccent: (accent) => set({ accent }),
+      setTheme: (tenant, theme) =>
+        set((s) => ({ themes: { ...s.themes, [tenant]: theme } })),
+      setAccent: (tenant, accent) =>
+        set((s) => ({ accents: { ...s.accents, [tenant]: accent } })),
       setMenu: (menu) => set({ menu }),
       notify: (notice) => set({ notice }),
     }),
     {
-      name: "tattoo-studio-ui-v2",
-      partialize: ({ theme, accent }) => ({ theme, accent }),
+      name: "studio-ui-v3",
+      partialize: ({ themes, accents }) => ({ themes, accents }),
     },
   ),
 );
+
+/** Tema e destaque do estúdio da sessão, com os padrões da marca. */
+export function useAppearance() {
+  const tenant = useSession((s) => s.tenantId) ?? "yannis";
+  const { themes, accents, setTheme, setAccent } = useInterface();
+  return {
+    theme: themes[tenant] ?? tenants[tenant].defaultTheme,
+    accent: accents[tenant] ?? tenants[tenant].defaultAccent,
+    defaultAccent: tenants[tenant].defaultAccent,
+    setTheme: (t: Theme) => setTheme(tenant, t),
+    setAccent: (a: string) => setAccent(tenant, a),
+  };
+}

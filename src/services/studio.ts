@@ -1,5 +1,22 @@
 import { overlaps } from "../features/calendar";
+import { addExpense, markInstallment } from "../domain/billing";
+import {
+  advanceFollowUp,
+  birthdayCoupon,
+  ensureFollowUp,
+  onQuoteSaved,
+  onSessionConcluded,
+  scanTimeEvents,
+} from "../domain/followups";
+import {
+  addClientWithReferral,
+  createPromotion,
+  registerPayment,
+  saveCoupon,
+} from "../domain/loyalty";
+import { adjustStock, purchase } from "../domain/stock";
 import { dateOffset, seed } from "../mocks/studio";
+import { currentTenant } from "../stores/session";
 import type {
   Collection,
   Entity,
@@ -7,28 +24,38 @@ import type {
   StudioData,
   StudioService,
 } from "../types/studio";
-const key = "tattoo-studio-data-v2";
+const storageKey = () => "studio-data-v3-" + currentTenant();
 const delay = (ms = 180) => new Promise((resolve) => setTimeout(resolve, ms));
 export const id = () => crypto.randomUUID();
 function load(): StudioData {
-  const raw = localStorage.getItem(key);
-  return raw ? JSON.parse(raw) : seed();
+  const raw = localStorage.getItem(storageKey());
+  return raw ? JSON.parse(raw) : seed(currentTenant());
 }
-async function change(action: (data: StudioData) => void) {
+async function change<T>(action: (data: StudioData, today: string) => T) {
   await delay();
   const data = load();
-  action(data);
-  localStorage.setItem(key, JSON.stringify(data));
+  const result = action(data, dateOffset());
+  localStorage.setItem(storageKey(), JSON.stringify(data));
+  return result;
 }
 export const studio: StudioService = {
   async get() {
     await delay(240);
-    return load();
+    const data = load();
+    if (
+      scanTimeEvents(data, dateOffset()) > 0 ||
+      !localStorage.getItem(storageKey())
+    )
+      localStorage.setItem(storageKey(), JSON.stringify(data));
+    return data;
   },
   async save<K extends Collection>(key: K, item: Entity<K>) {
-    await change((d) => {
+    await change((d, today) => {
       if (key === "sessions") {
         const s = item as Entity<"sessions">;
+        const previousSession = d.sessions.find((x) => x.id === s.id);
+        if (s.status === "Concluído" && previousSession?.status !== "Concluído")
+          onSessionConcluded(d, s, today);
         if (
           s.status !== "Cancelado" &&
           d.sessions.some((other) => other.id !== s.id && overlaps(s, other))
@@ -67,6 +94,7 @@ export const studio: StudioService = {
       if (key === "quotes") {
         const quote = item as Entity<"quotes">;
         const previous = d.quotes.find((q) => q.id === quote.id);
+        onQuoteSaved(d, quote, previous, today);
         if (
           previous &&
           previous.clientId !== quote.clientId &&
@@ -119,6 +147,55 @@ export const studio: StudioService = {
         c.history.unshift(dateOffset() + " · Etapa alterada para " + stage);
         c.stage = stage;
       }
+    });
+  },
+  addClient(client) {
+    return change((d, today) => addClientWithReferral(d, client, today));
+  },
+  pay(input) {
+    return change((d, today) => registerPayment(d, input, today));
+  },
+  markInstallment(paymentId, n, received) {
+    return change((d) => markInstallment(d, paymentId, n, received));
+  },
+  addExpense(e) {
+    return change((d) => addExpense(d, e));
+  },
+  advanceFollowUp(followUpId, stage, note, extra) {
+    return change((d, today) =>
+      advanceFollowUp(d, followUpId, stage, note, today, extra),
+    );
+  },
+  async addFollowUp({ clientId, due, note }) {
+    await change((d, today) => {
+      const f = ensureFollowUp(d, { clientId, reason: "Manual", due }, today);
+      if (f && note) {
+        f.note = note;
+        f.history[0].note = note;
+      }
+    });
+  },
+  birthdayCoupon(followUpId) {
+    return change((d, today) => birthdayCoupon(d, followUpId, today));
+  },
+  createPromotion(p, clientIds) {
+    return change((d, today) => createPromotion(d, p, clientIds, today));
+  },
+  saveCoupon(c) {
+    return change((d) => saveCoupon(d, c));
+  },
+  async purchase(itemId, qty, totalCents, date) {
+    await change((d) => purchase(d, itemId, qty, totalCents, date));
+  },
+  adjustStock(itemId, qty, note) {
+    return change((d, today) => adjustStock(d, itemId, qty, note, today));
+  },
+  saveStockItem(item) {
+    return change((d) => {
+      if (!item.name.trim()) throw new Error("Informe o nome do item.");
+      const index = d.stock.findIndex((x) => x.id === item.id);
+      if (index < 0) d.stock.unshift(item);
+      else d.stock[index] = item;
     });
   },
 };

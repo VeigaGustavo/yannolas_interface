@@ -1,3 +1,4 @@
+import type { PaymentInput } from "../domain/loyalty";
 export const stages = [
   "Novo lead",
   "Qualificação",
@@ -26,10 +27,9 @@ export interface Quote {
   id: string;
   clientId: string;
   description: string;
-  size: string;
-  placement: string;
-  value: number;
-  deposit: number;
+  details: Record<string, string>;
+  valueCents: number;
+  depositCents: number;
   validUntil: string;
   status: "Rascunho" | "Pendente" | "Aprovado" | "Recusado";
   reference: string;
@@ -219,4 +219,34 @@ export interface StudioService {
   save<K extends Collection>(key: K, item: Entity<K>): Promise<void>;
   settings(value: Settings): Promise<void>;
   moveClient(id: string, stage: Stage): Promise<void>;
+  addClient(client: Client): Promise<void>;
+  pay(input: PaymentInput): Promise<Payment>;
+  markInstallment(
+    paymentId: string,
+    n: number,
+    received: boolean,
+  ): Promise<void>;
+  addExpense(e: Expense): Promise<void>;
+  advanceFollowUp(
+    id: string,
+    stage: FollowUpStage,
+    note: string,
+    extra?: { rating?: number; comment?: string; convertedTo?: string },
+  ): Promise<void>;
+  addFollowUp(input: {
+    clientId: string;
+    due: string;
+    note: string;
+  }): Promise<void>;
+  birthdayCoupon(followUpId: string): Promise<Benefit>;
+  createPromotion(p: Promotion, clientIds: string[]): Promise<void>;
+  saveCoupon(c: Coupon): Promise<void>;
+  purchase(
+    itemId: string,
+    qty: number,
+    totalCents: number,
+    date: string,
+  ): Promise<void>;
+  adjustStock(itemId: string, qty: number, note: string): Promise<void>;
+  saveStockItem(item: StockItem): Promise<void>;
 }

@@ -178,7 +178,7 @@ function Overview({ data }: { data: StudioData }) {
     },
     {
       label: "Receita prevista",
-      value: money(approved.reduce((sum, q) => sum + q.value * 100, 0)),
+      value: money(approved.reduce((sum, q) => sum + q.valueCents, 0)),
       icon: CircleDollarSign,
       color: "violet",
       hint: "Orçamentos aprovados",

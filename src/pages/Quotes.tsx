@@ -71,9 +71,14 @@ function QuoteForm({
       values={
         quote
           ? {
-              ...quote,
-              value: String(quote.value),
-              deposit: String(quote.deposit),
+              clientId: quote.clientId,
+              description: quote.description,
+              size: quote.details.size ?? "",
+              placement: quote.details.placement ?? "",
+              value: String(quote.valueCents / 100),
+              deposit: String(quote.depositCents / 100),
+              validUntil: quote.validUntil,
+              status: quote.status,
             }
           : {
               clientId,
@@ -132,10 +137,13 @@ function QuoteForm({
               id: quote?.id || id(),
               clientId: v.clientId,
               description: v.description,
-              size: v.size,
-              placement: v.placement,
-              value: Number(v.value),
-              deposit: Number(v.deposit),
+              details: {
+                ...quote?.details,
+                size: v.size,
+                placement: v.placement,
+              },
+              valueCents: Math.round(Number(v.value) * 100),
+              depositCents: Math.round(Number(v.deposit) * 100),
               validUntil: v.validUntil,
               status: v.status as Quote["status"],
               reference,
@@ -221,8 +229,8 @@ function QuotesView({ data }: { data: StudioData }) {
                     <br />
                     <small>{q.description}</small>
                   </td>
-                  <td>{money(q.value * 100)}</td>
-                  <td>{money(q.deposit * 100)}</td>
+                  <td>{money(q.valueCents)}</td>
+                  <td>{money(q.depositCents)}</td>
                   <td>{shortDate(q.validUntil)}</td>
                   <td>
                     <Badge
@@ -276,12 +284,10 @@ function QuotesView({ data }: { data: StudioData }) {
               <strong>{clientName(quote.clientId)}</strong>
             </div>
             <p>{quote.description}</p>
+            <p>{Object.values(quote.details).filter(Boolean).join(" · ")}</p>
             <p>
-              {quote.size} · {quote.placement}
-            </p>
-            <p>
-              <strong>{money(quote.value * 100)}</strong> · Sinal de{" "}
-              {money(quote.deposit * 100)}
+              <strong>{money(quote.valueCents)}</strong> · Sinal de{" "}
+              {money(quote.depositCents)}
             </p>
             <p className="muted">Válido até {shortDate(quote.validUntil)}</p>
             {quote.reference && (

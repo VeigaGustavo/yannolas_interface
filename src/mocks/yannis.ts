@@ -1,0 +1,66 @@
+import type { SeedConfig } from "./seedConfig";
+
+const projects = [
+  "Floral em fine line",
+  "Pontilhismo geométrico",
+  "Borboleta delicada",
+  "Realismo preto e cinza",
+  "Cobertura floral",
+  "Mandala em pontilhismo",
+];
+
+export const yannisSeed: SeedConfig = {
+  names: [
+    "Mariana Costa",
+    "Rafael Mendes",
+    "Camila Oliveira",
+    "Lucas Ferreira",
+    "Beatriz Santos",
+    "Pedro Almeida",
+    "Isabela Rocha",
+    "Gabriel Lima",
+    "Ana Ribeiro",
+    "Bruno Silva",
+    "Juliana Martins",
+    "Diego Souza",
+  ],
+  surnames: ["Castro", "Dias", "Moreira", "Cardoso", "Barros", "Azevedo"],
+  ddd: "63",
+  projects,
+  tags: ["fine line", "pontilhismo", "floral", "retorno"],
+  details: (i) => ({
+    placement: ["Antebraço", "Braço", "Ombro", "Costela", "Tornozelo"][i % 5],
+    size: ["8 cm", "12 cm", "15 cm", "20 cm"][i % 4],
+    style: ["Fine line", "Pontilhismo", "Floral", "Preto e cinza"][i % 4],
+  }),
+  pricesCents: [65000, 180000, 45000, 140000, 85000, 55000],
+  depositCents: 15000,
+  durations: [90, 120, 180],
+  procedures: [{ name: "Tatuagem", returnDays: 30 }],
+  stock: [
+    { name: "Tinta preta 30 ml", unit: "fr", qty: 6, min: 2, costCents: 6500 },
+    { name: "Agulhas RL 3", unit: "cx", qty: 1, min: 2, costCents: 9000 },
+    { name: "Agulhas RS 7", unit: "cx", qty: 4, min: 2, costCents: 9500 },
+    { name: "Luvas nitrílicas", unit: "cx", qty: 1, min: 3, costCents: 4500 },
+    { name: "Filme PVC", unit: "rl", qty: 5, min: 2, costCents: 2500 },
+    { name: "Vaselina sólida", unit: "pt", qty: 4, min: 1, costCents: 1800 },
+    { name: "Batoques", unit: "pct", qty: 8, min: 2, costCents: 1200 },
+    {
+      name: "Papel hectográfico",
+      unit: "cx",
+      qty: 3,
+      min: 1,
+      costCents: 12000,
+    },
+  ],
+  coupon: "FLASH10",
+  promotion: "Flash Day floral",
+  raffle: "Sorteio de aniversário do estúdio",
+  rentCents: 180000,
+  settings: {
+    studio: "Yannis Tattoo",
+    artist: "Yannis Manolas",
+    hours: "Atendimento diário com horário marcado",
+    policies: "Sinal de R$ 150. Reagendamentos com 48 horas de antecedência.",
+  },
+};

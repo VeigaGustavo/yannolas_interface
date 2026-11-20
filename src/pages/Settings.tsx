@@ -9,13 +9,13 @@ import { workingHours } from "../features/calendar";
 import { useAction } from "../hooks/useStudio";
 import { required, time } from "../schemas/forms";
 import { studio } from "../services/studio";
-import { useInterface } from "../stores/interface";
+import { useAppearance } from "../stores/interface";
 import type { StudioData } from "../types/studio";
 const tabs = ["Estúdio", "Aparência"];
 function SettingsView({ data }: { data: StudioData }) {
   const [tab, setTab] = useState(tabs[0]);
   const action = useAction();
-  const { theme, setTheme, accent, setAccent } = useInterface();
+  const { theme, setTheme, accent, setAccent, defaultAccent } = useAppearance();
   const settings = data.settings;
   return (
     <Page
@@ -135,7 +135,7 @@ function SettingsView({ data }: { data: StudioData }) {
             />
           </label>
           <div>
-            <Button onClick={() => setAccent("#ff9100")}>
+            <Button onClick={() => setAccent(defaultAccent)}>
               Restaurar cor padrão
             </Button>
           </div>
