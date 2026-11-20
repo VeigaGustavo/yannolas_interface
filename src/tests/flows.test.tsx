@@ -16,7 +16,7 @@ import { dateOffset } from "../mocks/studio";
 import { studio } from "../services/studio";
 import { useInterface } from "../stores/interface";
 import { useSession } from "../stores/session";
-import type { Session } from "../types/studio";
+import type { Session, TenantId } from "../types/studio";
 
 beforeEach(() => {
   localStorage.clear();
@@ -31,7 +31,9 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
-function open(route = "/") {
+function open(route = "/", tenant: TenantId | null = "yannis") {
+  useSession.getState().logout();
+  if (tenant) useSession.getState().login(tenant + "@demo.app", "demo123");
   const query = new QueryClient({
     defaultOptions: { queries: { retry: false, gcTime: 0 } },
   });
@@ -131,7 +133,7 @@ describe("protótipo do estúdio", () => {
 
   it("não oferece mais IA, atendimento nem campanhas", async () => {
     open();
-    await screen.findByRole("link", { name: "CRM" });
+    await screen.findByRole("link", { name: "Clientes" });
     for (const name of [
       "Agente de IA",
       "Atendimento",
@@ -141,7 +143,39 @@ describe("protótipo do estúdio", () => {
       expect(screen.queryByRole("link", { name })).toBeNull();
   });
 
-  it.todo("troca de estúdio sem mostrar dados do anterior");
+  it("troca de estúdio sem mostrar dados do anterior", async () => {
+    const user = open("/crm");
+    await screen.findAllByText("Mariana Costa");
+    await user.click(screen.getByRole("button", { name: "Sair" }));
+    await user.type(await screen.findByLabelText("E-mail"), "lumi@demo.app");
+    await user.type(screen.getByLabelText("Senha"), "demo123");
+    await user.click(screen.getByRole("button", { name: "Entrar" }));
+    await screen.findAllByText("Lumi Estética Avançada");
+    expect(screen.queryByText("Mariana Costa")).toBeNull();
+  }, 10000);
+
+  it("exige login e avisa que é um protótipo", async () => {
+    const user = open("/crm", null);
+    await screen.findByRole("button", { name: "Entrar" });
+    expect(
+      screen.getByText(
+        "Protótipo: os dados ficam neste navegador e o login não é seguro.",
+      ),
+    ).toBeTruthy();
+    await user.type(screen.getByLabelText("E-mail"), "yannis@demo.app");
+    await user.type(screen.getByLabelText("Senha"), "errada");
+    await user.click(screen.getByRole("button", { name: "Entrar" }));
+    await screen.findByText("E-mail ou senha incorretos.");
+  });
+
+  it("mostra a marca e o menu da Lumi", async () => {
+    open("/", "lumi");
+    await screen.findByRole("link", { name: "Clientes" });
+    for (const name of ["Follow-up", "Faturamento", "Fidelidade", "Estoque"])
+      expect(screen.getByRole("link", { name })).toBeTruthy();
+    expect(screen.queryByText("YANNIS | TATTOO")).toBeNull();
+    expect(screen.getAllByText("LUMI").length).toBeGreaterThan(0);
+  });
 
   it("mostra a marca Yannis Tattoo na navegação", async () => {
     open();

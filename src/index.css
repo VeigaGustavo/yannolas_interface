@@ -459,9 +459,109 @@ kbd {
   padding: 28px 15px;
   color: var(--muted);
 }
-.mobile-menu,
-.scrim {
+.nav-more {
   display: none;
+  align-items: center;
+  border-radius: 7px;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  font: inherit;
+}
+.nav-more[aria-expanded="true"] {
+  color: var(--accent-text);
+  background: var(--accent-soft);
+}
+.logout {
+  width: 100%;
+  justify-content: flex-start;
+  margin-top: 4px;
+}
+.logo-mark {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-family: var(--display);
+  font-size: 1.4rem;
+}
+.topbar-studio {
+  color: var(--muted);
+  white-space: nowrap;
+}
+.more-sheet {
+  display: grid;
+  gap: 4px;
+}
+.more-sheet a,
+.more-sheet .button {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 11px;
+  min-height: 46px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  color: var(--text);
+}
+.more-sheet a:hover,
+.more-sheet a.active {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+.login {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+  background: var(--base);
+}
+.login-card {
+  width: min(100%, 400px);
+  display: grid;
+  gap: 16px;
+  padding: 28px 22px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+.login-kicker {
+  letter-spacing: 0.115em;
+  font-size: 0.66rem;
+  color: var(--muted);
+}
+.login-note {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.login-demo {
+  display: grid;
+  gap: 6px;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+  font-size: 0.85rem;
+}
+.login-demo button {
+  display: grid;
+  text-align: left;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--raised);
+  color: var(--text);
+}
+.login-demo small {
+  color: var(--muted);
+}
+:root[data-tenant="lumi"] {
+  --on-accent: #ffffff;
+  --accent-text: color-mix(in srgb, var(--accent) 55%, #ffffff);
+}
+:root[data-tenant="lumi"][data-theme="light"] {
+  --accent-text: color-mix(in srgb, var(--accent) 80%, #000000);
 }
 .skip {
   position: fixed;
@@ -652,37 +752,59 @@ tr:last-child td {
   height: 80px;
 }
 @media (max-width: 1000px) {
-  .layout {
-    display: block;
-  }
-  .sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 240px;
-    transform: translateX(-100%);
-    transition: transform 0.18s;
-  }
-  .sidebar.open {
-    transform: none;
-  }
-  .sidebar:not(.open) {
-    visibility: hidden;
-  }
-  .scrim {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: #0009;
-    z-index: 4;
-  }
-  .mobile-menu {
-    display: inline-flex;
-  }
   .page,
   .topbar {
     padding-left: 19px;
     padding-right: 19px;
+  }
+}
+@media (max-width: 899.98px) {
+  .layout {
+    display: block;
+    padding-bottom: calc(66px + env(safe-area-inset-bottom));
+  }
+  .sidebar {
+    position: fixed;
+    inset: auto 0 0 0;
+    top: auto;
+    height: auto;
+    flex-direction: row;
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+    border-right: 0;
+    border-top: 1px solid var(--line);
+    overflow: visible;
+    z-index: 10;
+  }
+  .sidebar .brand,
+  .sidebar .nav-heading,
+  .sidebar .nav-secondary,
+  .sidebar-bottom {
+    display: none;
+  }
+  .sidebar nav {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    width: 100%;
+  }
+  .sidebar .nav-group {
+    display: contents;
+  }
+  .sidebar .nav-group a,
+  .nav-more {
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    min-height: 52px;
+    margin: 0;
+    padding: 6px 2px;
+    font-size: 0.69rem;
+    text-align: center;
+  }
+  .nav-more {
+    display: flex;
+  }
+  .toast {
+    bottom: calc(76px + env(safe-area-inset-bottom));
   }
 }
 @media (max-width: 760px) {
@@ -1293,5 +1415,15 @@ tr:last-child td {
   }
   .metric-label {
     font-size: 0.81rem;
+  }
+}
+@media (max-width: 639.98px) {
+  .native-dialog {
+    margin: auto 0 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 90dvh;
+    border-radius: 16px 16px 0 0;
+    border-bottom: 0;
   }
 }

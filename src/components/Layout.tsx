@@ -1,52 +1,58 @@
 import { Modal } from "./Modal";
-import { useStudio } from "../hooks/useStudio";
+import { useQueryClient } from "@tanstack/react-query";
+import { useStudio, useTenant } from "../hooks/useStudio";
+import { useSession } from "../stores/session";
 import {
   Bell,
   CalendarDays,
-  ChartNoAxesColumnIncreasing,
   ChevronDown,
   CircleHelp,
   Command,
+  Ellipsis,
+  Gift,
   LayoutDashboard,
-  Menu,
+  LogOut,
+  MessageSquareReply,
   Moon,
+  Package,
   ReceiptText,
   Search,
   Settings,
   Sun,
   UsersRound,
+  Wallet,
   X,
 } from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Suspense, useEffect, useState } from "react";
 import { useAppearance, useInterface } from "../stores/interface";
 import { Button } from "./ui/button";
+export const primaryNav = [
+  { path: "/", label: "Início", icon: LayoutDashboard },
+  { path: "/agenda", label: "Agenda", icon: CalendarDays },
+  { path: "/crm", label: "Clientes", icon: UsersRound },
+  { path: "/follow-up", label: "Follow-up", icon: MessageSquareReply },
+];
+export const secondaryNav = [
+  { path: "/faturamento", label: "Faturamento", icon: Wallet },
+  { path: "/fidelidade", label: "Fidelidade", icon: Gift },
+  { path: "/estoque", label: "Estoque", icon: Package },
+  { path: "/orcamentos", label: "Orçamentos", icon: ReceiptText },
+  { path: "/configuracoes", label: "Configurações", icon: Settings },
+];
 export const navigation = [
-  {
-    title: "Visão geral",
-    items: [
-      { path: "/", label: "Dashboard", icon: LayoutDashboard },
-      { path: "/crm", label: "CRM", icon: UsersRound },
-    ],
-  },
-  {
-    title: "Operações",
-    items: [
-      { path: "/orcamentos", label: "Orçamentos", icon: ReceiptText },
-      { path: "/agenda", label: "Agenda", icon: CalendarDays },
-    ],
-  },
-  {
-    title: "Preferências",
-    items: [{ path: "/configuracoes", label: "Configurações", icon: Settings }],
-  },
+  { title: "Operação", items: primaryNav },
+  { title: "Gestão", items: secondaryNav },
 ];
 export function Layout() {
-  const { menu, setMenu, notice, notify } = useInterface();
+  const { notice, notify } = useInterface();
+  const tenant = useTenant();
+  const logout = useSession((s) => s.logout);
+  const queryClient = useQueryClient();
   const { theme, accent, setTheme } = useAppearance();
   const data = useStudio().data;
   const reminders = 0; // passa a contar follow-ups na Tarefa 14
-  const artist = data?.settings.artist || "Yannis Manolas";
+  const artist = data?.settings.artist || tenant.professional;
   const initials = artist
     .split(" ")
     .slice(0, 2)
@@ -59,10 +65,20 @@ export function Layout() {
   const page =
     navigation.flatMap((g) => g.items).find((i) => i.path === location.pathname)
       ?.label || "Página";
+  const leave = () => {
+    setPanel("");
+    logout();
+    queryClient.clear();
+    navigate("/login", { replace: true });
+  };
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    document.documentElement.style.setProperty("--accent", accent);
-  }, [theme, accent]);
+    const root = document.documentElement;
+    root.dataset.theme = theme;
+    root.dataset.tenant = tenant.id;
+    root.style.setProperty("--accent", accent);
+    document.title = tenant.name + " | Painel do estúdio";
+  }, [theme, accent, tenant]);
+  useEffect(() => setPanel(""), [location.pathname]);
   useEffect(() => {
     if (!notice) return;
     const timer = setTimeout(() => notify(""), 4200);
@@ -84,23 +100,22 @@ export function Layout() {
       <a className="skip" href="#conteudo">
         Ir para o conteúdo
       </a>
-      {menu && (
-        <button
-          className="scrim"
-          aria-label="Fechar menu"
-          onClick={() => setMenu(false)}
-        />
-      )}
-      <aside id="sidebar" className={menu ? "sidebar open" : "sidebar"}>
-        <NavLink to="/" className="brand" onClick={() => setMenu(false)}>
+      <aside id="sidebar" className="sidebar">
+        <NavLink to="/" className="brand">
           <span className="logo">
-            <img
-              src={import.meta.env.BASE_URL + "brand/yannis-marca.png"}
-              alt="Yannis Tattoo"
-            />
+            {tenant.logo ? (
+              <img
+                src={import.meta.env.BASE_URL + tenant.logo}
+                alt={tenant.name}
+              />
+            ) : (
+              <span className="logo-mark" aria-hidden="true">
+                {tenant.mark.slice(0, 1)}
+              </span>
+            )}
           </span>
           <span>
-            <strong>Yannis | Tattoo</strong>
+            <strong>{tenant.mark}</strong>
             <small>PAINEL DO ESTÚDIO</small>
           </span>
         </NavLink>
@@ -113,47 +128,44 @@ export function Layout() {
                   to={path}
                   end={path === "/"}
                   key={path}
-                  onClick={() => setMenu(false)}
+                  className={g.items === secondaryNav ? "nav-secondary" : ""}
                 >
                   <Icon size={18} />
-                  {label}
+                  <span>{label}</span>
                 </NavLink>
               ))}
             </div>
           ))}
+          <button
+            className="nav-more"
+            aria-expanded={panel === "more"}
+            onClick={() => setPanel(panel === "more" ? "" : "more")}
+          >
+            <Ellipsis size={18} />
+            <span>Mais</span>
+          </button>
         </nav>
         <div className="sidebar-bottom">
           <button
             className="studio-profile"
-            onClick={() => {
-              navigate("/configuracoes");
-              setMenu(false);
-            }}
+            onClick={() => navigate("/configuracoes")}
           >
             <span className="avatar lime">{initials}</span>
             <span>
               <strong>{artist}</strong>
-              <small>{data?.settings.studio || "Yannis Tattoo"}</small>
+              <small>{data?.settings.studio || tenant.name}</small>
             </span>
             <ChevronDown size={15} />
           </button>
+          <Button variant="ghost" className="logout" onClick={leave}>
+            <LogOut size={16} /> Sair
+          </Button>
         </div>
       </aside>
       <div className="workspace">
         <header className="topbar">
           <div className="breadcrumb">
-            <Button
-              variant="ghost"
-              className="mobile-menu icon-button"
-              aria-label="Abrir menu"
-              aria-controls="sidebar"
-              aria-expanded={menu}
-              onClick={() => setMenu(true)}
-            >
-              <Menu size={21} />
-            </Button>
-            <ChartNoAxesColumnIncreasing size={17} />
-            <span>Workspace</span>
+            <span className="topbar-studio">{tenant.name}</span>
             <span className="slash">/</span>
             <strong>{page}</strong>
           </div>
@@ -207,10 +219,28 @@ export function Layout() {
       </div>
       {panel && (
         <Modal
-          title={panel === "search" ? "Buscar módulos" : "Notificações"}
+          title={
+            panel === "search"
+              ? "Buscar módulos"
+              : panel === "more"
+                ? "Mais opções"
+                : "Notificações"
+          }
           close={() => setPanel("")}
         >
-          {panel === "search" ? (
+          {panel === "more" ? (
+            <div className="more-sheet">
+              {secondaryNav.map(({ path, label, icon: Icon }) => (
+                <NavLink to={path} key={path} onClick={() => setPanel("")}>
+                  <Icon size={18} />
+                  {label}
+                </NavLink>
+              ))}
+              <Button variant="ghost" onClick={leave}>
+                <LogOut size={18} /> Sair
+              </Button>
+            </div>
+          ) : panel === "search" ? (
             <>
               <input
                 autoFocus
