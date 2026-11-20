@@ -12,7 +12,7 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { App } from "../App";
-import { dateOffset, sampleReference } from "../mocks/studio";
+import { dateOffset } from "../mocks/studio";
 import { studio } from "../services/studio";
 import { useInterface } from "../stores/interface";
 import type { Session } from "../types/studio";
@@ -64,49 +64,6 @@ describe("protótipo do estúdio", () => {
       expect(
         (await studio.get()).clients.find((c) => c.name === "Lia Prado")?.stage,
       ).toBe("Qualificação"),
-    );
-  }, 10000);
-
-  it("simula recebimento e resposta do agente sem conexão real", async () => {
-    const user = open("/atendimento");
-    await user.click(
-      await screen.findByRole("button", { name: "Simular mensagem recebida" }),
-    );
-    await within(screen.getByLabelText("Histórico de mensagens")).findByText(
-      "Referência recebida! Vou encaminhar o projeto para revisão do estúdio.",
-      { exact: true },
-    );
-    expect((await studio.get()).clients[0].references).toContain(
-      sampleReference,
-    );
-  });
-
-  it("aprova o briefing simulado e atualiza o CRM", async () => {
-    const user = open("/agente?cliente=c0");
-    await user.click(
-      await screen.findByRole("button", { name: "Usar referência disponível" }),
-    );
-    await user.click(screen.getByRole("button", { name: "Simular análise" }));
-    const dialog = within(
-      await screen.findByRole(
-        "dialog",
-        { name: "Revisar briefing simulado" },
-        { timeout: 3500 },
-      ),
-    );
-    await user.clear(dialog.getByLabelText("Briefing estruturado"));
-    await user.type(
-      dialog.getByLabelText("Briefing estruturado"),
-      "Ramo botânico aprovado",
-    );
-    await user.click(
-      dialog.getByRole("button", { name: "Aprovar atualização" }),
-    );
-    await screen.findByRole("status", { name: "" });
-    await waitFor(async () =>
-      expect((await studio.get()).clients[0].project).toBe(
-        "Ramo botânico aprovado",
-      ),
     );
   }, 10000);
 
@@ -169,58 +126,17 @@ describe("protótipo do estúdio", () => {
     expect((await studio.get()).clients[0].stage).toBe("Agendado");
   });
 
-  it("simula uma campanha segmentada apenas uma vez", async () => {
-    const user = open("/campanhas");
-    await user.click(
-      await screen.findByRole("button", { name: "Pré-visualizar" }),
-    );
-    const dialog = within(screen.getByRole("dialog"));
-    expect(dialog.getByText(/12 clientes elegíveis/)).toBeTruthy();
-    await user.click(dialog.getByRole("button", { name: "Simular disparo" }));
-    await dialog.findByText("12 destinatários registrados na simulação.");
-    await expect(studio.dispatch("p1")).rejects.toThrow("indisponível");
+  it("não oferece mais IA, atendimento nem campanhas", async () => {
+    open();
+    await screen.findByRole("link", { name: "CRM" });
+    for (const name of [
+      "Agente de IA",
+      "Atendimento",
+      "Campanhas",
+      "Pós-atendimento",
+    ])
+      expect(screen.queryByRole("link", { name })).toBeNull();
   });
-  it("deduplica um evento recebido e respeita o modo humano", async () => {
-    const before = await studio.get();
-    const thread = before.conversations.find((c) => c.mode === "Humano")!;
-    const event = {
-      event: "messages.upsert" as const,
-      conversationId: thread.id,
-      messageId: "external-1",
-      text: "Preciso reagendar.",
-      at: new Date().toISOString(),
-    };
-    await Promise.all([studio.receive(event), studio.receive(event)]);
-    const after = (await studio.get()).conversations.find(
-      (c) => c.id === thread.id,
-    )!;
-    expect(after.messages).toHaveLength(thread.messages.length + 1);
-    expect(after.messages.at(-1)?.from).toBe("cliente");
-    expect(after.unread).toBe(thread.unread + 1);
-  });
-
-  it("registra uma resposta de satisfação e o lembrete de retorno", async () => {
-    const user = open("/feedback");
-    await user.click(
-      await screen.findByRole("button", { name: "Nova pesquisa" }),
-    );
-    const fields = within(
-      await screen.findByRole("dialog", {
-        name: "Nova pesquisa de satisfação",
-      }),
-    );
-    await user.selectOptions(fields.getByLabelText("Cliente"), "c6");
-    await user.selectOptions(fields.getByLabelText("Nota"), "5");
-    await user.selectOptions(fields.getByLabelText("Status"), "Recebido");
-    await user.type(fields.getByLabelText("Comentário"), "Voltarei em breve");
-    await user.click(fields.getByRole("button", { name: "Salvar" }));
-    await screen.findByText("Voltarei em breve");
-    expect((await studio.get()).feedback[0]).toMatchObject({
-      clientId: "c6",
-      rating: 5,
-      status: "Recebido",
-    });
-  }, 10000);
 
   it("mostra a marca Yannis Tattoo na navegação", async () => {
     open();

@@ -1,6 +1,5 @@
 import { Modal } from "./Modal";
 import { useStudio } from "../hooks/useStudio";
-import { dateOffset } from "../mocks/studio";
 import {
   Bell,
   CalendarDays,
@@ -10,14 +9,10 @@ import {
   Command,
   LayoutDashboard,
   Menu,
-  MessageCircle,
   Moon,
   ReceiptText,
   Search,
-  Send,
   Settings,
-  Sparkles,
-  Star,
   Sun,
   UsersRound,
   X,
@@ -32,8 +27,6 @@ export const navigation = [
     items: [
       { path: "/", label: "Dashboard", icon: LayoutDashboard },
       { path: "/crm", label: "CRM", icon: UsersRound },
-      { path: "/atendimento", label: "Atendimento", icon: MessageCircle },
-      { path: "/agente", label: "Agente de IA", icon: Sparkles },
     ],
   },
   {
@@ -41,8 +34,6 @@ export const navigation = [
     items: [
       { path: "/orcamentos", label: "Orçamentos", icon: ReceiptText },
       { path: "/agenda", label: "Agenda", icon: CalendarDays },
-      { path: "/campanhas", label: "Campanhas", icon: Send },
-      { path: "/feedback", label: "Pós-atendimento", icon: Star },
     ],
   },
   {
@@ -54,11 +45,7 @@ export function Layout() {
   const { theme, accent, setTheme, menu, setMenu, notice, notify } =
     useInterface();
   const data = useStudio().data;
-  const reminders = data?.settings.notifications
-    ? data.feedback.filter(
-        (f) => f.status !== "Concluído" && f.followUp <= dateOffset(),
-      ).length
-    : 0;
+  const reminders = 0; // passa a contar follow-ups na Tarefa 14
   const artist = data?.settings.artist || "Yannis Manolas";
   const initials = artist
     .split(" ")
@@ -136,17 +123,6 @@ export function Layout() {
           ))}
         </nav>
         <div className="sidebar-bottom">
-          <div className="agent-indicator">
-            <span className="agent-icon">
-              <Sparkles size={16} />
-            </span>
-            <div>
-              <strong>Agente de IA</strong>
-              <small>
-                <i className="dot" /> Modo demonstração
-              </small>
-            </div>
-          </div>
           <button
             className="studio-profile"
             onClick={() => {
@@ -274,7 +250,7 @@ export function Layout() {
               <Button
                 onClick={() => {
                   setPanel("");
-                  navigate("/feedback");
+                  navigate("/");
                 }}
               >
                 Ver acompanhamentos

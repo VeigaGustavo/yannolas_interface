@@ -8,14 +8,12 @@ import {
   CircleDollarSign,
   ClipboardList,
   Clock3,
-  MessageCircle,
   Plus,
-  Sparkles,
   Target,
   UsersRound,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Badge, Data, Empty, Page } from "../components/Page";
+import { Data, Empty, Page } from "../components/Page";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { dateOffset, initials, money, shortDate } from "../mocks/studio";
@@ -259,7 +257,7 @@ function Overview({ data }: { data: StudioData }) {
           <div className="section-head">
             <div>
               <h2>Indicadores</h2>
-              <p>Acompanhe o atendimento</p>
+              <p>Acompanhe a conversão</p>
             </div>
             <Activity size={17} />
           </div>
@@ -283,28 +281,6 @@ function Overview({ data }: { data: StudioData }) {
           >
             <i style={{ width: conversion + "%" }} />
           </div>
-          <Link to="/atendimento" className="indicator">
-            <span className="metric-icon amber">
-              <MessageCircle size={16} />
-            </span>
-            <div>
-              <small>Aguardando resposta</small>
-              <strong>
-                {
-                  data.conversations.filter(
-                    (c) => c.messages.at(-1)?.from === "cliente",
-                  ).length
-                }{" "}
-                <em>conversas</em>
-              </strong>
-            </div>
-            <ChevronRight size={15} />
-          </Link>
-          <Button asChild className="operation-link">
-            <Link to="/atendimento">
-              Abrir central de atendimento <ChevronRight size={15} />
-            </Link>
-          </Button>
         </Card>
       </div>
       <div className="grid-two dashboard-bottom">
@@ -341,37 +317,6 @@ function Overview({ data }: { data: StudioData }) {
             })
           ) : (
             <Empty>Nenhuma sessão confirmada.</Empty>
-          )}
-        </Card>
-        <Card className="pad">
-          <div className="section-head">
-            <div>
-              <h2>Atividade do agente</h2>
-              <p>Últimas ações registradas pela IA</p>
-            </div>
-            <Button asChild variant="ghost">
-              <Link to="/agente">
-                Ver histórico <ChevronRight size={15} />
-              </Link>
-            </Button>
-          </div>
-          {data.executions.length ? (
-            data.executions.slice(0, 3).map((a) => (
-              <div className="list-row" key={a.id}>
-                <span className="metric-icon violet">
-                  <Sparkles size={16} />
-                </span>
-                <div>
-                  <strong>{a.title}</strong>
-                  <small>{a.detail}</small>
-                </div>
-                <Badge tone={a.status === "Aprovado" ? "green" : "violet"}>
-                  {a.status}
-                </Badge>
-              </div>
-            ))
-          ) : (
-            <Empty>Nenhuma atividade registrada.</Empty>
           )}
         </Card>
       </div>

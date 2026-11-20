@@ -2,10 +2,8 @@ import { overlaps } from "../features/calendar";
 import { dateOffset, seed } from "../mocks/studio";
 import type {
   Collection,
-  Conversation,
   Entity,
   Stage,
-  Message,
   StudioData,
   StudioService,
 } from "../types/studio";
@@ -21,40 +19,6 @@ async function change(action: (data: StudioData) => void) {
   const data = load();
   action(data);
   localStorage.setItem(key, JSON.stringify(data));
-}
-function append(
-  data: StudioData,
-  conversation: Conversation,
-  message: Message,
-) {
-  conversation.messages.push(message);
-  const received = message.from === "cliente";
-  if (received) conversation.unread++;
-  const client = data.clients.find((x) => x.id === conversation.clientId);
-  if (!client) return;
-  client.history.unshift(
-    dateOffset() +
-      " · " +
-      (received ? "Mensagem recebida" : "Mensagem enviada"),
-  );
-  if (received && message.image && !client.references.includes(message.image))
-    client.references.unshift(message.image);
-}
-function getConversation(data: StudioData, id: string) {
-  const conversation = data.conversations.find((c) => c.id === id);
-  if (!conversation) throw new Error("Conversa indisponível.");
-  return conversation;
-}
-export function matchingClients(data: StudioData, segment: string) {
-  return data.clients.filter(
-    (c) =>
-      !segment.trim() ||
-      c.tags
-        .toLowerCase()
-        .split(",")
-        .map((t) => t.trim())
-        .includes(segment.trim().toLowerCase()),
-  );
 }
 export const studio: StudioService = {
   async get() {
@@ -156,75 +120,5 @@ export const studio: StudioService = {
         c.stage = stage;
       }
     });
-  },
-  send(id, message) {
-    return change((data) => append(data, getConversation(data, id), message));
-  },
-  receive(event) {
-    return change((data) => {
-      const conversation = getConversation(data, event.conversationId);
-      if (
-        conversation.messages.some((message) => message.id === event.messageId)
-      )
-        return;
-      append(data, conversation, {
-        id: event.messageId,
-        from: "cliente",
-        text: event.text,
-        image: event.image,
-        at: event.at,
-      });
-      if (data.settings.agent && conversation.mode === "IA") {
-        conversation.summary =
-          "Último pedido do cliente: " +
-          event.text +
-          " Revisar a referência e confirmar disponibilidade.";
-        append(data, conversation, {
-          id: event.messageId + "-reply",
-          from: "agente",
-          text: "Referência recebida! Vou encaminhar o projeto para revisão do estúdio.",
-          at: event.at,
-        });
-      }
-    });
-  },
-  read(id) {
-    return change((d) => {
-      const c = d.conversations.find((c) => c.id === id);
-      if (c) c.unread = 0;
-    });
-  },
-  review(id, detail, approve) {
-    return change((d) => {
-      const run = d.executions.find((x) => x.id === id);
-      if (!run || run.status !== "Pendente")
-        throw new Error("Esta execução já foi revisada.");
-      run.status = approve ? "Aprovado" : "Rejeitado";
-      run.detail = detail;
-      if (approve) {
-        const client = d.clients.find((x) => x.id === run.clientId);
-        if (client) {
-          client.project = detail;
-          client.history.unshift(
-            dateOffset() + " · Briefing simulado aprovado",
-          );
-          if (run.image && !client.references.includes(run.image))
-            client.references.unshift(run.image);
-        }
-      }
-    });
-  },
-  async dispatch(id) {
-    let sent = 0;
-    await change((d) => {
-      const c = d.campaigns.find((x) => x.id === id);
-      if (!c || c.status === "Simulada")
-        throw new Error("Campanha indisponível para simulação.");
-      sent = matchingClients(d, c.segment).length;
-      if (!sent) throw new Error("Nenhum cliente corresponde ao segmento.");
-      c.sent = sent;
-      c.status = "Simulada";
-    });
-    return sent;
   },
 };

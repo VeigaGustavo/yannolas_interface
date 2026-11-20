@@ -296,11 +296,6 @@ function CRMView({ data }: { data: StudioData }) {
             <div className="inline">
               <Button onClick={() => setEditing(true)}>Editar cliente</Button>
               <Button asChild>
-                <Link to={"/atendimento?cliente=" + client.id}>
-                  Abrir atendimento
-                </Link>
-              </Button>
-              <Button asChild>
                 <Link to={"/orcamentos?cliente=" + client.id}>
                   Criar orçamento
                 </Link>

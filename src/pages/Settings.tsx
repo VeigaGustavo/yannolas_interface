@@ -1,18 +1,17 @@
 import { useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import { z } from "zod";
-import { Badge, Data, Page } from "../components/Page";
+import { Data, Page } from "../components/Page";
 import { Editor, options } from "../components/Editor";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { workingHours } from "../features/calendar";
-import { AgentSettings } from "../features/AgentSettings";
 import { useAction } from "../hooks/useStudio";
 import { required, time } from "../schemas/forms";
 import { studio } from "../services/studio";
 import { useInterface } from "../stores/interface";
 import type { StudioData } from "../types/studio";
-const tabs = ["Estúdio", "Agente", "Integrações", "Aparência"];
+const tabs = ["Estúdio", "Aparência"];
 function SettingsView({ data }: { data: StudioData }) {
   const [tab, setTab] = useState(tabs[0]);
   const action = useAction();
@@ -106,51 +105,6 @@ function SettingsView({ data }: { data: StudioData }) {
               })
             }
           />
-        </Card>
-      )}
-      {tab === "Agente" && (
-        <Card className="pad settings-card">
-          <div className="section-head">
-            <h2>Configuração do agente</h2>
-          </div>
-          <AgentSettings settings={settings} />
-        </Card>
-      )}
-      {tab === "Integrações" && (
-        <Card className="pad settings-card">
-          <div className="section-head">
-            <h2>Integrações futuras</h2>
-          </div>
-          {[
-            {
-              name: "Evolution API",
-              text: "Eventos locais no módulo de atendimento.",
-              status: "Simulada",
-            },
-            {
-              name: "Spring Boot",
-              text: "API de domínio planejada em Java.",
-              status: "Planejada",
-            },
-            {
-              name: "LangChain4j",
-              text: "Orquestração e controle de ferramentas do agente.",
-              status: "Planejada",
-            },
-            {
-              name: "PostgreSQL",
-              text: "Modelo relacional disponível no repositório.",
-              status: "Modelo inicial",
-            },
-          ].map((i) => (
-            <div className="list-row" key={i.name}>
-              <div>
-                <strong>{i.name}</strong>
-                <small>{i.text}</small>
-              </div>
-              <Badge tone="violet">{i.status}</Badge>
-            </div>
-          ))}
         </Card>
       )}
       {tab === "Aparência" && (

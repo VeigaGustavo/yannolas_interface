@@ -103,97 +103,10 @@ export function seed(): StudioData {
     duration: 90,
     status: "Confirmado" as const,
   }));
-  const conversations = clients.slice(0, 8).map((c, i) => ({
-    id: "t" + i,
-    clientId: c.id,
-    unread: i < 6 ? 1 : 0,
-    mode: i % 3 === 1 ? ("Humano" as const) : ("IA" as const),
-    summary:
-      "Cliente busca " +
-      c.project.toLowerCase() +
-      ". Confirmar tamanho e disponibilidade.",
-    messages: [
-      {
-        id: "m" + i,
-        from: "cliente" as const,
-        text:
-          "Oi! Gostaria de saber mais sobre " + c.project.toLowerCase() + ".",
-        at: dateOffset() + "T09:15",
-      },
-      {
-        id: "r" + i,
-        from: i % 3 === 1 ? ("humano" as const) : ("agente" as const),
-        text:
-          "Olá, " +
-          c.name.split(" ")[0] +
-          "! Você tem alguma referência para o projeto?",
-        at: dateOffset() + "T09:16",
-      },
-      ...(i < 6
-        ? [
-            {
-              id: "followup" + i,
-              from: "cliente" as const,
-              text:
-                i === 0
-                  ? "Tenho esta referência. Vocês têm horário esta semana?"
-                  : "Tenho uma referência. Posso mandar por aqui?",
-              at: dateOffset() + "T09:21",
-              image: c.references[0],
-            },
-          ]
-        : []),
-    ],
-  }));
   return {
     clients,
     quotes,
     sessions,
-    conversations,
-    executions: [
-      {
-        id: "a1",
-        title: "Referência visual analisada",
-        detail: "Briefing de fine line gerado para Mariana Costa.",
-        at: dateOffset() + "T10:42",
-        status: "Simulado",
-      },
-      {
-        id: "a2",
-        title: "Lead qualificado",
-        detail: "Rafael Mendes avançou para qualificação.",
-        at: dateOffset() + "T09:35",
-        status: "Aprovado",
-      },
-      {
-        id: "a3",
-        title: "Resumo de conversa criado",
-        detail: "Preferências de Camila Oliveira registradas.",
-        at: dateOffset() + "T08:24",
-        status: "Simulado",
-      },
-    ],
-    campaigns: [
-      {
-        id: "p1",
-        name: "Flash Day floral de novembro",
-        type: "Flash tattoo",
-        segment: "floral",
-        message:
-          "Oi, {nome}! Abrimos horários para o Flash Day floral do Yannis.",
-        date: dateOffset(7),
-        status: "Agendada",
-        sent: 0,
-      },
-    ],
-    feedback: clients.slice(0, 5).map((c, i) => ({
-      id: "f" + i,
-      clientId: c.id,
-      rating: i === 4 ? 0 : i === 2 ? 4 : 5,
-      comment: i === 4 ? "" : "Ótima experiência no estúdio.",
-      followUp: dateOffset(i + 2),
-      status: i === 4 ? "Pendente" : "Recebido",
-    })),
     settings: {
       studio: "Yannis Tattoo",
       artist: "Yannis Manolas",
@@ -201,13 +114,7 @@ export function seed(): StudioData {
       opensAt: "10:00",
       closesAt: "19:00",
       policies: "Sinal de R$ 150. Reagendamentos com 48 horas de antecedência.",
-      tone: "Próximo, profissional e direto",
-      knowledge:
-        "Estilos do estúdio: traços finos, pontilhismo, floral e realismo em preto e cinza. Estúdio em Palmas-TO.",
-      rules: "Confirme o tamanho e a região antes de encaminhar um orçamento.",
-      tools: "Resumo de conversa, análise de referência, atualização de CRM",
       notifications: true,
-      agent: true,
     },
   };
 }
