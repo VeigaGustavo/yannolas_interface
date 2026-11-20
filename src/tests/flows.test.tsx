@@ -360,6 +360,40 @@ describe("protótipo do estúdio", () => {
     );
   }, 15000);
 
+  it("conduz um follow-up pelo funil com histórico", async () => {
+    await studio.addFollowUp({
+      clientId: "c0",
+      due: dateOffset(),
+      note: "Ligar sobre o retoque",
+    });
+    const user = open("/follow-up");
+    let card = within(
+      await screen.findByRole("article", { name: /Mariana Costa · Manual/ }),
+    );
+    const wa = card.getByRole("link", { name: "Chamar no WhatsApp" });
+    expect(wa.getAttribute("href")).toMatch(/^https:\/\/wa\.me\/55/);
+    wa.addEventListener("click", (e) => e.preventDefault());
+    await user.click(wa);
+    await card.findByText("Contatado");
+    await user.click(card.getByRole("button", { name: "Sem resposta" }));
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("article", { name: /Mariana Costa · Manual/ }),
+      ).toBeNull(),
+    );
+    await user.click(screen.getByRole("tab", { name: "Próximos" }));
+    card = within(
+      await screen.findByRole("article", { name: /Mariana Costa · Manual/ }),
+    );
+    expect(card.getByText("Tentativa 1 de 3")).toBeTruthy();
+    await user.click(card.getByRole("button", { name: "Histórico" }));
+    const history = within(
+      await screen.findByRole("list", { name: "Histórico do follow-up" }),
+    );
+    expect(history.getByText(/Contatado/)).toBeTruthy();
+    expect(history.getByText(/Sem resposta/)).toBeTruthy();
+  }, 15000);
+
   it("mostra a marca Yannis Tattoo na navegação", async () => {
     open();
     expect(
