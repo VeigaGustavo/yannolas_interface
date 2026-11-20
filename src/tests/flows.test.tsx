@@ -394,6 +394,34 @@ describe("protótipo do estúdio", () => {
     expect(history.getByText(/Sem resposta/)).toBeTruthy();
   }, 15000);
 
+  it("registra compra no estoque como despesa", async () => {
+    const item = (await studio.get()).stock.find(
+      (i) => i.name === "Filme PVC",
+    )!;
+    const user = open("/estoque");
+    const card = within(
+      await screen.findByRole("article", { name: "Filme PVC" }),
+    );
+    await user.click(card.getByRole("button", { name: "Registrar compra" }));
+    const form = within(
+      await screen.findByRole("dialog", { name: "Registrar compra" }),
+    );
+    await user.type(form.getByLabelText("Quantidade"), "2");
+    await user.type(form.getByLabelText("Valor total (R$)"), "80,00");
+    await user.click(form.getByRole("button", { name: "Salvar" }));
+    await waitFor(async () =>
+      expect(
+        (await studio.get()).stock.find((i) => i.id === item.id)?.qty,
+      ).toBe(item.qty + 2),
+    );
+    cleanup();
+    const next = open("/faturamento");
+    await next.click(await screen.findByRole("tab", { name: "Despesas" }));
+    expect(
+      await screen.findByText(`Compra: Filme PVC (2 ${item.unit})`),
+    ).toBeTruthy();
+  }, 15000);
+
   it("mostra a marca Yannis Tattoo na navegação", async () => {
     open();
     expect(

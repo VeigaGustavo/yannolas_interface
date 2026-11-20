@@ -1601,3 +1601,7 @@ tr:last-child td {
 .followup-card small {
   color: var(--muted);
 }
+.stock-qty {
+  white-space: nowrap;
+  font-size: 1.1rem;
+}

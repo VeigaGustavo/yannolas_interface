@@ -11,17 +11,12 @@ const Settings = lazy(() => import("./pages/Settings"));
 const Billing = lazy(() => import("./pages/Billing"));
 const Loyalty = lazy(() => import("./pages/Loyalty"));
 const FollowUp = lazy(() => import("./pages/FollowUp"));
+const Stock = lazy(() => import("./pages/Stock"));
 
 function RequireSession({ children }: { children: ReactNode }) {
   const tenantId = useSession((s) => s.tenantId);
   return tenantId ? children : <Navigate to="/login" replace />;
 }
-const Soon = ({ title }: { title: string }) => (
-  <div className="page">
-    <h1>{title}</h1>
-    <p>Módulo em construção.</p>
-  </div>
-);
 
 export function App() {
   return (
@@ -39,7 +34,7 @@ export function App() {
         <Route path="follow-up" element={<FollowUp />} />
         <Route path="faturamento" element={<Billing />} />
         <Route path="fidelidade" element={<Loyalty />} />
-        <Route path="estoque" element={<Soon title="Estoque" />} />
+        <Route path="estoque" element={<Stock />} />
         <Route path="orcamentos" element={<Quotes />} />
         <Route path="agenda" element={<Agenda />} />
         <Route path="configuracoes" element={<Settings />} />
