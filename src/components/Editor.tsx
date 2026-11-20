@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
 import { Button } from "./ui/button";
+import { SearchSelect } from "./SearchSelect";
 export interface Field {
   name: string;
   label: string;
@@ -10,6 +11,8 @@ export interface Field {
   options?: { value: string; label: string }[];
   wide?: boolean;
 }
+/** Listas maiores que isto viram campo de busca em vez de seletor. */
+export const SEARCH_AFTER = 8;
 export const options = (items: readonly string[]) =>
   items.map((value) => ({ value, label: value }));
 export function Editor({
@@ -35,6 +38,8 @@ export function Editor({
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
+    setValue,
+    watch,
   } = useForm<Record<string, string>>({
     defaultValues: values,
     resolver: zodResolver(schema),
@@ -67,7 +72,21 @@ export function Editor({
           return (
             <div key={f.name} className={"field " + (f.wide ? "wide" : "")}>
               <label htmlFor={fieldId}>{f.label}</label>
-              {f.options ? (
+              {f.options && f.options.length > SEARCH_AFTER ? (
+                <SearchSelect
+                  id={fieldId}
+                  options={f.options}
+                  value={watch(f.name) ?? ""}
+                  onChange={(v) =>
+                    setValue(f.name, v, {
+                      shouldValidate: !!errors[f.name],
+                      shouldDirty: true,
+                    })
+                  }
+                  invalid={!!error}
+                  describedBy={error ? fieldId + "-error" : undefined}
+                />
+              ) : f.options ? (
                 <select {...props}>
                   {f.options.map((o) => (
                     <option key={o.value} value={o.value}>

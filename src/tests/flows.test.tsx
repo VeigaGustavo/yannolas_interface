@@ -89,8 +89,9 @@ describe("protótipo do estúdio", () => {
       await screen.findByRole("dialog", { name: "Nova sessão" }),
     );
     expect(
-      (form.getByLabelText("Orçamento associado") as HTMLSelectElement).value,
-    ).toBe(data.quotes[0].id);
+      (form.getByLabelText("Orçamento associado") as HTMLInputElement).value,
+    ).toBe("Mariana Costa · " + data.quotes[0].description);
+    expect(form.getByRole("combobox", { name: "Cliente" })).toBeTruthy();
     const day = form.getByLabelText("Data") as HTMLInputElement;
     const chosen = dateOffset(20);
     fireEvent.change(day, { target: { value: chosen } });
@@ -186,7 +187,8 @@ describe("protótipo do estúdio", () => {
     await user.type(form.getByLabelText("Nome"), "Lia Prado");
     await user.type(form.getByLabelText("Telefone"), "63999998888");
     await user.type(form.getByLabelText("Oportunidade / projeto"), "Ramo");
-    await user.selectOptions(form.getByLabelText("Indicado por"), "c0");
+    await user.type(form.getByLabelText("Indicado por"), "mariana co");
+    await user.click(form.getByRole("option", { name: "Mariana Costa" }));
     await user.click(form.getByRole("button", { name: "Salvar" }));
     await waitFor(async () =>
       expect(

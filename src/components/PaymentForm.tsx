@@ -1,5 +1,6 @@
 import { useId, useState, type FormEvent } from "react";
 import { Button } from "./ui/button";
+import { SearchSelect } from "./SearchSelect";
 import { useAction, useStudio } from "../hooks/useStudio";
 import { availableBenefits } from "../domain/loyalty";
 import {
@@ -121,21 +122,16 @@ export function PaymentForm({
       {!fixedClient && (
         <label className="field" htmlFor={field("client")}>
           Cliente
-          <select
+          <SearchSelect
             id={field("client")}
+            options={data.clients.map((c) => ({ value: c.id, label: c.name }))}
             value={clientId}
-            onChange={(e) => {
-              setClientId(e.target.value);
+            placeholder="Digite o nome do cliente"
+            onChange={(v) => {
+              setClientId(v);
               setDiscount("");
             }}
-          >
-            <option value="">Selecione um cliente</option>
-            {data.clients.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+          />
         </label>
       )}
       <div className="form-grid">
