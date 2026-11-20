@@ -430,14 +430,48 @@ describe("protótipo do estúdio", () => {
     expect(await screen.findByText("Yannis Manolas")).toBeTruthy();
   });
 
-  it("restaura o laranja como cor de destaque", async () => {
+  it("guarda o destaque por estúdio e restaura o padrão", async () => {
     useInterface.getState().setAccent("yannis", "#123456");
-    const user = open("/configuracoes");
-    await user.click(await screen.findByRole("button", { name: "Aparência" }));
+    const user = open("/configuracoes", "lumi");
+    await user.click(await screen.findByRole("tab", { name: "Aparência" }));
     await user.click(
       screen.getByRole("button", { name: "Restaurar cor padrão" }),
     );
-    expect(useInterface.getState().accents.yannis).toBe("#ff9100");
+    expect(useInterface.getState().accents.lumi).toBe("#0e7c7b");
+    expect(useInterface.getState().accents.yannis).toBe("#123456");
+  });
+
+  it("usa o prazo configurado para o follow-up de orçamento", async () => {
+    const user = open("/configuracoes");
+    await user.click(await screen.findByRole("tab", { name: "Follow-up" }));
+    const field = screen.getByLabelText("Orçamento sem resposta (dias)");
+    await user.clear(field);
+    await user.type(field, "5");
+    await user.click(screen.getByRole("button", { name: "Salvar prazos" }));
+    await waitFor(async () =>
+      expect((await studio.get()).settings.followUp.quoteDays).toBe(5),
+    );
+    const data = await studio.get();
+    await studio.save("quotes", {
+      ...data.quotes[19],
+      id: "nova",
+      clientId: "c29",
+      status: "Pendente",
+    });
+    const f = (await studio.get()).followUps.find((x) => x.refId === "nova");
+    expect(f?.due).toBe(dateOffset(5));
+  }, 10000);
+
+  it("mostra estoque baixo e follow-ups no início", async () => {
+    open("/");
+    const low = within(
+      await screen.findByRole("region", { name: "Estoque baixo" }),
+    );
+    expect(low.getByText("Luvas nitrílicas")).toBeTruthy();
+    expect(
+      screen.getByRole("region", { name: "Follow-ups de hoje e atrasados" }),
+    ).toBeTruthy();
+    expect(screen.getByRole("region", { name: "Resumo do mês" })).toBeTruthy();
   });
 
   it("ignora dados salvos pela versão anterior do protótipo", async () => {

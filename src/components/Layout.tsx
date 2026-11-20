@@ -2,6 +2,8 @@ import { Modal } from "./Modal";
 import { useQueryClient } from "@tanstack/react-query";
 import { useStudio, useTenant } from "../hooks/useStudio";
 import { useSession } from "../stores/session";
+import { bucket } from "../domain/followups";
+import { dateOffset } from "../mocks/studio";
 import {
   Bell,
   CalendarDays,
@@ -51,7 +53,12 @@ export function Layout() {
   const queryClient = useQueryClient();
   const { theme, accent, setTheme } = useAppearance();
   const data = useStudio().data;
-  const reminders = 0; // passa a contar follow-ups na Tarefa 14
+  const today = dateOffset();
+  const reminders = data?.settings.notifications
+    ? data.followUps.filter((f) =>
+        ["Hoje", "Atrasados"].includes(bucket(f, today)),
+      ).length
+    : 0;
   const artist = data?.settings.artist || tenant.professional;
   const initials = artist
     .split(" ")
@@ -276,14 +283,14 @@ export function Layout() {
             </>
           ) : reminders > 0 ? (
             <div className="stack">
-              <p>{reminders} lembrete(s) de retorno para hoje ou em atraso.</p>
+              <p>{reminders} follow-up(s) para hoje ou em atraso.</p>
               <Button
                 onClick={() => {
                   setPanel("");
-                  navigate("/");
+                  navigate("/follow-up");
                 }}
               >
-                Ver acompanhamentos
+                Abrir follow-up
               </Button>
             </div>
           ) : (
