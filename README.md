@@ -1,6 +1,15 @@
-# Yannis Tattoo — Painel do estúdio
+# Painel do estúdio — Yannis Tattoo e Lumi Estética
 
-Protótipo navegável para operar o estúdio Yannis Tattoo, em Palmas-TO. Inclui Dashboard, CRM, Atendimento, Agente de IA, Orçamentos, Agenda, Campanhas, Pós-atendimento e Configurações.
+Protótipo navegável, pensado primeiro para celular, que atende **dois estúdios separados**: o Yannis Tattoo e a Lumi Estética Avançada, uma clínica de biomedicina estética. As regras são as mesmas para os dois. Mudam a marca, o vocabulário e os campos de cada um. Os módulos são Início, Agenda, Clientes (CRM), Follow-up, Faturamento, Fidelidade, Estoque, Orçamentos e Configurações.
+
+> **Protótipo:** os dados ficam no navegador de quem usa, e o login é simulado, sem segurança real. Cada estúdio vê apenas os próprios dados, mas isso vale só dentro deste navegador.
+
+### Contas de demonstração
+
+| Estúdio                | E-mail            | Senha     |
+| ---------------------- | ----------------- | --------- |
+| Yannis Tattoo          | `yannis@demo.app` | `demo123` |
+| Lumi Estética Avançada | `lumi@demo.app`   | `demo123` |
 
 ## Executar
 
@@ -11,7 +20,7 @@ npm ci
 npm run dev
 ```
 
-Abra `http://localhost:5173`. O frontend usa dados fictícios gravados no armazenamento local do navegador. Para voltar à base inicial, remova as chaves `tattoo-studio-data-v2` e `tattoo-studio-ui-v2` nos dados do site.
+Abra `http://localhost:5173`. Os dados fictícios ficam no armazenamento local do navegador, um conjunto por estúdio. Para voltar à base inicial, remova as chaves `studio-data-v3-yannis`, `studio-data-v3-lumi`, `studio-session-v3` e `studio-ui-v3` nos dados do site.
 
 ### Docker Compose
 
@@ -32,14 +41,14 @@ O build é estático e funciona em qualquer subcaminho. As rotas usam hash, por 
 
 ## Roteiro de demonstração
 
-1. Crie um lead pelo Dashboard. Mova sua oportunidade no Kanban por arraste ou pelo seletor de etapa.
-2. Abra o perfil e inicie uma conversa. Em uma conversa no modo IA, simule uma mensagem recebida para ver a referência e a resposta automática.
-3. Abra o Agente de IA, escolha um cliente e use a referência floral ou carregue outra imagem. Revise o briefing antes de aprovar a atualização no CRM. O briefing usa atributos fictícios fixos.
-4. Crie um orçamento, marque como aprovado e converta a proposta em uma sessão. A agenda valida sobreposições e permite reagendamento e cancelamento.
-5. Pré-visualize uma campanha e simule o disparo. Em Pós-atendimento, registre a resposta a uma pesquisa e defina a data de retorno.
-6. Altere o tema, a cor de destaque ou as preferências de lembretes nas Configurações.
-
-Campanhas agendadas registram uma data planejada. O disparo ocorre apenas com a ação de simulação. Mensagens, imagens e edições ficam no navegador.
+1. **Entrar:** entre com uma das contas de demonstração. A marca, as cores e o vocabulário mudam conforme o estúdio. Na Lumi, por exemplo, aparece "Procedimento" no lugar de "Sessão".
+2. **Concluir um atendimento:** na Agenda, abra um horário confirmado e toque em **Concluir**. O pagamento abre já preenchido com o valor do orçamento e o sinal pago. Escolha um desconto (benefício do cliente, cupom `FLASH10`/`LUMI15` ou desconto manual), a forma de pagamento e as parcelas. O desconto incide sobre o total e o sinal é abatido depois.
+3. **Faturamento:** confira o que entrou no mês, o que falta receber das parcelas, as despesas e o lucro. Registre uma despesa.
+4. **Follow-up:** veja os contatos de hoje e os atrasados. Use **Chamar no WhatsApp**, marque "Sem resposta" e veja a nova tentativa ser agendada. Os follow-ups nascem sozinhos a partir de orçamento sem resposta, atendimento concluído, retorno, aniversário, cliente inativo e indicação.
+5. **Clientes:** cadastre um cliente indicado por outro. Quem indicou ganha um benefício "Pendente", liberado no primeiro atendimento pago do indicado. A ficha mostra as abas Financeiro e Fidelidade.
+6. **Fidelidade:** crie um cupom e um sorteio para um cliente e acompanhe o ranking de indicações.
+7. **Estoque:** registre uma compra, que vira despesa automaticamente, ou ajuste a contagem. O Início avisa quando algum item está abaixo do mínimo.
+8. **Trocar de estúdio:** saia pelo menu "Mais" (no celular) ou pela barra lateral e entre com a outra conta. Os dados dos dois estúdios não se misturam.
 
 ## Validação
 
@@ -52,4 +61,4 @@ npm exec prettier -- --check .
 
 - [Arquitetura e API planejada](docs/arquitetura.md)
 - [Modelo PostgreSQL](docs/schema.sql)
-- [Roadmap do MVP](docs/roadmap.md)
+- [Roadmap](docs/roadmap.md)

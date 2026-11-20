@@ -173,7 +173,7 @@ export function seed(tenant: TenantId = "yannis"): StudioData {
   saveCoupon(d, {
     id: id(),
     code: cfg.coupon,
-    pct: 10,
+    pct: Number(cfg.coupon.replace(/\D/g, "")) || 10,
     validUntil: dateOffset(30),
     maxUses: 20,
     uses: 0,

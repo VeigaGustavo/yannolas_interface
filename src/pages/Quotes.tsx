@@ -192,7 +192,7 @@ function QuotesView({ data }: { data: StudioData }) {
   return (
     <Page
       title="Orçamentos"
-      description="Prepare propostas, acompanhe aprovações e converta projetos em sessões."
+      description={`Prepare propostas, acompanhe aprovações e converta em ${tenant.terms.atendimentos.toLowerCase()}.`}
       actions={
         <Button variant="default" onClick={() => setParams({ novo: "1" })}>
           <Plus size={17} /> Novo orçamento
@@ -238,9 +238,9 @@ function QuotesView({ data }: { data: StudioData }) {
                     <br />
                     <small>{q.description}</small>
                   </td>
-                  <td>{money(q.valueCents)}</td>
-                  <td>{money(q.depositCents)}</td>
-                  <td>{shortDate(q.validUntil)}</td>
+                  <td data-label="Valor">{money(q.valueCents)}</td>
+                  <td data-label="Sinal">{money(q.depositCents)}</td>
+                  <td data-label="Validade">{shortDate(q.validUntil)}</td>
                   <td>
                     <Badge
                       tone={

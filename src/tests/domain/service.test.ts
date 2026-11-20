@@ -54,6 +54,8 @@ describe("estúdios e sessão", () => {
       expect(d.coupons.length).toBe(2);
       expect(d.clients.some((c) => c.referredBy)).toBe(true);
     }
+    expect(l.coupons.find((c) => c.code === "LUMI15")?.pct).toBe(15);
+    expect(y.coupons.find((c) => c.code === "FLASH10")?.pct).toBe(10);
     expect(l.settings.procedures.map((p) => p.returnDays)).toEqual([
       120, 270, 180, 30,
     ]);

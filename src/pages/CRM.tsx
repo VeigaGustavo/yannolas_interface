@@ -67,7 +67,7 @@ function CRMView({ data }: { data: StudioData }) {
     });
   return (
     <Page
-      title="CRM"
+      title="Clientes"
       description="Acompanhe clientes e oportunidades do primeiro contato à sessão."
       actions={
         <Button variant="default" onClick={() => setParams({ novo: "1" })}>
